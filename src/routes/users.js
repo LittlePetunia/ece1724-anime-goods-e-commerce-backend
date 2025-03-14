@@ -46,6 +46,33 @@ router.get("/:email", async (req, res, next) => {
   }
 });
 
+// PUT /api/user/:id
+// Update user
+router.put("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userData = req.body;
+    const updatedUser = await db.updateUser(parseInt(id), userData);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/user/:id
+// Delete user
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.deleteUser(parseInt(id));
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
 
 
 module.exports = router;
