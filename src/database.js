@@ -9,6 +9,7 @@ const dbOperations = {
         data: {
           firstName: userData.firstName,
           lastName: userData.lastName,
+          password: userData.password,
           email: userData.email,
           address: userData.address,
           isAdmin: userData.isAdmin,

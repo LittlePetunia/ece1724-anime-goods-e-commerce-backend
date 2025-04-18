@@ -235,7 +235,6 @@ const validateResourceId = (req, res, next) => {
     next();
 };
 
-  // Error handler middleware
 // Error handler middleware
 const errorHandler = (err, req, res, next) => {
     console.error(err);

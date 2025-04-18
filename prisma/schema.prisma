@@ -14,15 +14,18 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  firstName   String
-  lastName    String
-  email       String   @unique
-  address     String
-  isAdmin     Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  password  String
+  email     String   @unique
+  address   String
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order[]
 }
+
 enum OrderStatus {
   PENDING
   PROCESSING
@@ -43,8 +46,8 @@ model Order {
   status    OrderStatus
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  
-  user      User        @relation(fields: [userId], references: [id])
+
+  user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
 }
 
@@ -54,9 +57,9 @@ model OrderItem {
   productId Int
   quantity  Int
   unitPrice Float
-  
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
 
 model Product {
@@ -68,6 +71,7 @@ model Product {
   price       Float
   imageURL    String
   description String
-  
-  orderItems  OrderItem[]
+  category    String
+
+  orderItems OrderItem[]
 }
