@@ -6,7 +6,7 @@ const {
   validateProductInput, 
   validateProductQueryParams, 
   validateResourceId 
-} = require("./middleware");
+} = require("../middleware");
 
 // POST /api/product
 // Create product

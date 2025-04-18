@@ -6,7 +6,7 @@ const {
   validateOrderInput, 
   validateOrderQueryParams, 
   validateResourceId 
-} = require("./middleware");
+} = require("../middleware");
 
 // POST /api/order
 // Create a new order
