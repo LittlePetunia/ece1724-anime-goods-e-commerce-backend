@@ -64,6 +64,9 @@ router.post("/login", async (req, res, next) => {
   try {
       const { email, password } = req.body;
       const user = await db.getUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
       if (user.password === password) {
         const { password, ...safeUser } = user;
         res.status(200).json(safeUser);
