@@ -3,18 +3,19 @@ const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const db = require("../database");
-const { 
-  validateProductInput, 
-  validateProductQueryParams, 
-  validateResourceId 
+const {
+  validateProductInput,
+  validateProductQueryParams,
+  validateResourceId
 } = require("../middleware");
+const { isAdmin } = require("../auth");
 
 // POST /api/product
 // Create product
-router.post("/", async (req, res, next) => {
+router.post("/", isAdmin, async (req, res, next) => {
   try {
     const product = req.body;
-    
+
     const errors = validateProductInput(product);
     if (errors.length > 0) {
       return res.status(400).json({
@@ -50,7 +51,7 @@ router.get("/", validateProductQueryParams, async (req, res, next) => {
     const { search, status, sortBy, sortOrder, skip, take } = req.query;
 
     const where = {};
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -58,7 +59,7 @@ router.get("/", validateProductQueryParams, async (req, res, next) => {
         { description: { contains: search, mode: 'insensitive' } }
       ];
     }
-    
+
     if (status) {
       where.status = status;
     }
@@ -79,7 +80,7 @@ router.get("/", validateProductQueryParams, async (req, res, next) => {
       }),
       prisma.product.count({ where })
     ]);
-    
+
     res.status(200).json({
       products,
       pagination: {
@@ -102,11 +103,11 @@ router.get("/:id", validateResourceId, async (req, res, next) => {
     const product = await prisma.product.findUnique({
       where: { id }
     });
-    
+
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    
+
     res.status(200).json(product);
   } catch (error) {
     next(error);
@@ -115,11 +116,11 @@ router.get("/:id", validateResourceId, async (req, res, next) => {
 
 // PUT /api/product/:id
 // Update product
-router.put("/:id", validateResourceId, async (req, res, next) => {
+router.put("/:id", validateResourceId, isAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
     const productUpdate = req.body;
-    
+
     const errors = validateProductInput(productUpdate);
     if (errors.length > 0) {
       return res.status(400).json({
@@ -132,11 +133,11 @@ router.put("/:id", validateResourceId, async (req, res, next) => {
     const existingProduct = await prisma.product.findUnique({
       where: { id }
     });
-    
+
     if (!existingProduct) {
       return res.status(404).json({ error: "Product not found" });
     }
-    
+
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
@@ -149,7 +150,7 @@ router.put("/:id", validateResourceId, async (req, res, next) => {
         status: productUpdate.status
       }
     });
-    
+
     res.status(200).json(updatedProduct);
   } catch (error) {
     next(error);
@@ -158,32 +159,32 @@ router.put("/:id", validateResourceId, async (req, res, next) => {
 
 // DELETE /api/product/:id
 // Delete product
-router.delete("/:id", validateResourceId, async (req, res, next) => {
+router.delete("/:id", validateResourceId, isAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
-    
+
     const existingProduct = await prisma.product.findUnique({
       where: { id }
     });
-    
+
     if (!existingProduct) {
       return res.status(404).json({ error: "Product not found" });
     }
-    
+
     const orderItemCount = await prisma.orderItem.count({
       where: { productId: id }
     });
-    
+
     if (orderItemCount > 0) {
-      return res.status(400).json({ 
-        error: "Cannot delete product that is referenced in orders. Consider marking it as DISCONTINUED instead." 
+      return res.status(400).json({
+        error: "Cannot delete product that is referenced in orders. Consider marking it as DISCONTINUED instead."
       });
     }
-    
+
     await prisma.product.delete({
       where: { id }
     });
-    
+
     res.status(204).send();
   } catch (error) {
     next(error);
