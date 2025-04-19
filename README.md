@@ -6,7 +6,7 @@ This is the backend for the Anime Goods E-Commerce application. It provides a RE
 
 ## User API Endpoints
 
-### POST `/api/user`  
+### POST `/api/user`
 Create a new user
 
 **Input:**
@@ -49,10 +49,12 @@ Create a new user
 }
 ```
 
+**Note:** Creating an admin user requires admin authentication.
+
 ---
 
-### GET `/api/user/allCustomers`  
-Get all non-admin users
+### GET `/api/user/allCustomers`
+Get all non-admin users (admin only)
 
 **Output:**
 ```json
@@ -72,8 +74,8 @@ Get all non-admin users
 
 ---
 
-### GET `/api/user/:email`  
-Find a user by email
+### GET `/api/user/:email`
+Find a user by email (requires authentication - only the user or an admin can access)
 
 **Output (if found):**
 ```json
@@ -98,7 +100,7 @@ Find a user by email
 
 ---
 
-### POST `/api/user/login`  
+### POST `/api/user/login`
 Authenticate user by email and password
 
 **Input:**
@@ -112,21 +114,24 @@ Authenticate user by email and password
 **Output:**
 ```json
 {
-  "id": 1,
-  "firstName": "Alice",
-  "lastName": "Johnson",
-  "email": "alice.johnson@example.com",
-  "address": "123 Cherry Lane, Springfield",
-  "isAdmin": false,
-  "createdAt": "2025-04-18T21:47:16.868Z",
-  "updatedAt": "2025-04-18T21:47:16.868Z"
+  "user": {
+    "id": 1,
+    "firstName": "Alice",
+    "lastName": "Johnson",
+    "email": "alice.johnson@example.com",
+    "address": "123 Cherry Lane, Springfield",
+    "isAdmin": false,
+    "createdAt": "2025-04-18T21:47:16.868Z",
+    "updatedAt": "2025-04-18T21:47:16.868Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
 ---
 
-### PUT `/api/user/:id`  
-Update user information
+### PUT `/api/user/:id`
+Update user information (requires authentication - only the user or an admin can update)
 
 **Input:**
 ```json
@@ -153,6 +158,19 @@ Update user information
   "updatedAt": "2025-04-18T21:59:14.435Z"
 }
 ```
+
+**Note:** Only admins can change the admin status of a user.
+
+---
+
+### DELETE `/api/user/:id`
+Delete a user (requires authentication - only the user or an admin can delete)
+
+**Output:**
+- Status 204 No Content on success
+- Status 404 if user not found
+- Status 400 if user ID is invalid
+
 ## User Input Requirement
 
 ---
@@ -163,7 +181,7 @@ Update user information
 | email      | Yes      | string  | Must be a valid email format                                     |
 | address    | Yes      | string  | Must be non-empty                                                |
 | isAdmin    | No       | boolean | If present, must be true or false                                |
-| password   | Yes      | string  | Must be at least 6 characters long 
+| password   | Yes      | string  | Must be at least 6 characters long
 
 ---
 
@@ -172,7 +190,7 @@ Update user information
 ---
 
 ## POST `/api/product`
-Create a new product.
+Create a new product (admin only).
 
 **Input:**
 ```json
@@ -258,7 +276,7 @@ GET /api/product/3
 ---
 
 ## PUT `/api/product/:id`
-Update an existing product.
+Update an existing product (admin only).
 
 **Example:**
 ```
@@ -287,10 +305,26 @@ PUT /api/product/3
 ```
 
 ---
+
+## DELETE `/api/product/:id`
+Delete a product (admin only).
+
+**Example:**
+```
+DELETE /api/product/3
+```
+
+**Response:**
+- Status 204 No Content on success
+- Status 404 if product not found
+- Status 400 if product is referenced in orders
+
+---
+
 # Order API Documentation
 
 ## POST `/api/order`
-Create a new order.
+Create a new order (requires authentication - only the user or an admin can create).
 
 **Input:**
 ```json
@@ -309,7 +343,7 @@ Create a new order.
 ---
 
 ## GET `/api/order/user/:userId`
-Get all orders for a specific user.
+Get all orders for a specific user (requires authentication - only the user or an admin can access).
 
 **Example:**
 ```
@@ -339,7 +373,7 @@ GET /api/order?status=SHIPPED&skip=0&take=5
 ---
 
 ## GET `/api/order/:id`
-Get a specific order by ID.
+Get a specific order by ID (requires authentication - only the order owner or an admin can access).
 
 **Example:**
 ```
@@ -351,7 +385,7 @@ GET /api/order/42
 ---
 
 ## PATCH `/api/order/:id/status`
-Update the status of an order.
+Update the status of an order (admin only).
 
 **Input:**
 ```json
@@ -371,6 +405,18 @@ Update the status of an order.
 
 ---
 
+## Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. To access protected endpoints:
+
+1. Login using the `/api/user/login` endpoint to get a token
+2. Include the token in the Authorization header of subsequent requests:
+   ```
+   Authorization: Bearer <your_token>
+   ```
+
+---
+
 ## Setup
 
 1. Clone the repository.
@@ -381,6 +427,7 @@ Update the status of an order.
 3. Create a `.env` file with the following:
    ```
    DATABASE_URL="your-postgresql-connection-string"
+   JWT_SECRET="your-jwt-secret-key"
    ```
 4. Run migrations:
    ```bash

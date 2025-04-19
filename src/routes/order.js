@@ -2,18 +2,32 @@ const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { 
-  validateOrderInput, 
-  validateOrderQueryParams, 
-  validateResourceId 
+const {
+  validateOrderInput,
+  validateOrderQueryParams,
+  validateResourceId
 } = require("../middleware");
+
+const {
+  isSpecificUserOrAdmin,
+  isAdmin
+} = require("../auth");
+
+// Helper function to get userId from orderId
+const getUserIdFromOrderId = async (orderId) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: { userId: true }
+  });
+  return order ? order.userId : null;
+};
 
 // POST /api/order
 // Create a new order
-router.post("/", async (req, res, next) => {
+router.post("/", isSpecificUserOrAdmin(req => req.body.userId), async (req, res, next) => {
   try {
     const order = req.body;
-    
+
     const errors = validateOrderInput(order);
     if (errors.length > 0) {
       return res.status(400).json({
@@ -24,42 +38,42 @@ router.post("/", async (req, res, next) => {
     }
 
     const orderItems = [];
-    
+
     for (const item of order.items) {
       const product = await prisma.product.findUnique({
         where: { id: item.productId }
       });
-      
+
       if (!product) {
-        return res.status(404).json({ 
-          error: `Product with ID ${item.productId} not found` 
+        return res.status(404).json({
+          error: `Product with ID ${item.productId} not found`
         });
       }
-      
+
       if (product.status !== 'ACTIVE') {
-        return res.status(400).json({ 
-          error: `Product "${product.name}" is not available for purchase` 
+        return res.status(400).json({
+          error: `Product "${product.name}" is not available for purchase`
         });
       }
-      
+
       if (product.stock < item.quantity) {
-        return res.status(400).json({ 
-          error: `Not enough stock for "${product.name}". Available: ${product.stock}` 
+        return res.status(400).json({
+          error: `Not enough stock for "${product.name}". Available: ${product.stock}`
         });
       }
-      
+
       orderItems.push({
         productId: item.productId,
         quantity: item.quantity,
         unitPrice: product.price
       });
-      
+
       await prisma.product.update({
         where: { id: item.productId },
         data: { stock: product.stock - item.quantity }
       });
     }
-    
+
     const newOrder = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -78,7 +92,7 @@ router.post("/", async (req, res, next) => {
         }
       });
     });
-    
+
     res.status(201).json(newOrder);
   } catch (error) {
     next(error);
@@ -87,7 +101,7 @@ router.post("/", async (req, res, next) => {
 
 // GET /api/order/user/:userId
 // Get orders by user ID
-router.get("/user/:id", validateResourceId, async (req, res, next) => {
+router.get("/user/:id", validateResourceId, isSpecificUserOrAdmin(req => parseInt(req.params.id)), async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
     const orders = await prisma.order.findMany({
@@ -105,7 +119,7 @@ router.get("/user/:id", validateResourceId, async (req, res, next) => {
         }
       }
     });
-    
+
     res.status(200).json(orders);
   } catch (error) {
     next(error);
@@ -114,13 +128,13 @@ router.get("/user/:id", validateResourceId, async (req, res, next) => {
 
 // GET /api/order
 // Get all orders with optional filtering (admin)
-router.get("/", validateOrderQueryParams, async (req, res, next) => {
+router.get("/", validateOrderQueryParams, isAdmin, async (req, res, next) => {
   try {
     const { status, skip, take } = req.query;
-    
+
     const where = {};
     if (status) where.status = status;
-    
+
     const [orders, totalCount] = await Promise.all([
       prisma.order.findMany({
         where,
@@ -150,7 +164,7 @@ router.get("/", validateOrderQueryParams, async (req, res, next) => {
       }),
       prisma.order.count({ where })
     ]);
-    
+
     res.status(200).json({
       orders,
       pagination: {
@@ -167,7 +181,10 @@ router.get("/", validateOrderQueryParams, async (req, res, next) => {
 
 // GET /api/order/:id
 // Get order by ID
-router.get("/:id", validateResourceId, async (req, res, next) => {
+router.get("/:id", validateResourceId, isSpecificUserOrAdmin(async (req) => {
+  const orderId = parseInt(req.params.id);
+  return await getUserIdFromOrderId(orderId);
+}), async (req, res, next) => {
   try {
     const { id } = req.params;
     const order = await prisma.order.findUnique({
@@ -188,11 +205,11 @@ router.get("/:id", validateResourceId, async (req, res, next) => {
         }
       }
     });
-    
+
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
-    
+
     res.status(200).json(order);
   } catch (error) {
     next(error);
@@ -201,7 +218,7 @@ router.get("/:id", validateResourceId, async (req, res, next) => {
 
 // PATCH /api/order/:id/status
 // Update order status
-router.patch("/:id/status", validateResourceId, async (req, res, next) => {
+router.patch("/:id/status", validateResourceId, isAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -213,8 +230,8 @@ router.patch("/:id/status", validateResourceId, async (req, res, next) => {
     }
 
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
+      return res.status(400).json({
+        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       });
     }
 
