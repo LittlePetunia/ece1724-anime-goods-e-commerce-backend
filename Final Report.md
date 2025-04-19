@@ -13,8 +13,8 @@
   *Email:* zhangchuyue.zhang@mail.utoronto.ca
 
 - **Qiao Song**  
-  *Student Number:* []  
-  *Email:* 
+  *Student Number:* 1000920355
+  *Email:* qiao.song@mail.utoronto.ca
 
 - **Yushun Tang**  
   *Student Number:* 1011561962  
