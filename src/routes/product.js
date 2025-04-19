@@ -146,6 +146,7 @@ router.put("/:id", validateResourceId, async (req, res, next) => {
         price: productUpdate.price,
         imageURL: productUpdate.imageURL,
         stock: productUpdate.stock,
+        category: productUpdate.category,
         status: productUpdate.status
       }
     });

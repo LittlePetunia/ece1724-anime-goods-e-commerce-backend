@@ -274,6 +274,7 @@ PUT /api/product/3
   "price": 39.99,
   "imageURL": "https://example.com/images/naruto-updated.jpg",
   "stock": 80,
+  "category": "Toy",
   "status": "ACTIVE"
 }
 ```
