@@ -176,7 +176,6 @@ const dbOperations = {
   // Order Operations
   createOrder: async (orderData) => {
     try {
-      // Calculate order total based on items
       let totalAmount = 0;
       for (const item of orderData.items) {
         totalAmount += item.unitPrice * item.quantity;
@@ -216,12 +215,15 @@ const dbOperations = {
         include: {
           orderItems: {
             include: {
-              product: true,
-            },
-          },
-          user: true,
-        },
-        orderBy: { createdAt: 'desc' },
+              product: {
+                select: {
+                  name: true,
+                  imageURL: true
+                }
+              }
+            }
+          }
+        }
       });
       return orders;
     } catch (error) {
@@ -229,35 +231,37 @@ const dbOperations = {
     }
   },
 
-  getAllOrders: async (filters = {}) => {
+  getAllOrders: async ({ where = {}, skip = 0, take = 10 } = {}) => {
     try {
-      const whereClause = {};
-
-      if (filters.status) {
-        whereClause.status = filters.status;
-      }
-
-      if (filters.userId) {
-        whereClause.userId = filters.userId;
-      }
-
-      const orders = await prisma.order.findMany({
-        where: whereClause,
-        include: {
-          user: true,
-          orderItems: {
-            include: {
-              product: true,
+      const [orders, totalCount] = await Promise.all([
+        prisma.order.findMany({
+          where,
+          skip: skip || 0,
+          take: take || 10,
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true
+              }
             },
+            orderItems: {
+              include: {
+                product: {
+                  select: {
+                    name: true
+                  }
+                }
+              }
+            }
           },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip: filters.skip,
-        take: filters.take,
-      });
-
-      const totalCount = await prisma.order.count({ where: whereClause });
-
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }),
+        prisma.order.count({ where })
+      ]);
       return { orders, totalCount };
     } catch (error) {
       throw error;
@@ -269,13 +273,20 @@ const dbOperations = {
       const order = await prisma.order.findUnique({
         where: { id },
         include: {
-          user: true,
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              address: true
+            }
+          },
           orderItems: {
             include: {
-              product: true,
-            },
-          },
-        },
+              product: true
+            }
+          }
+        }
       });
       return order || null;
     } catch (error) {
@@ -287,15 +298,7 @@ const dbOperations = {
     try {
       const updatedOrder = await prisma.order.update({
         where: { id },
-        data: { status },
-        include: {
-          orderItems: {
-            include: {
-              product: true
-            }
-          },
-          user: true,
-        },
+        data: { status }
       });
       return updatedOrder;
     } catch (error) {

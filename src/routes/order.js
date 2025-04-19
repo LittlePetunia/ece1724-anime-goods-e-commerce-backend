@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
+const db = require("../database");
 const prisma = new PrismaClient();
 const {
   validateOrderInput,
@@ -104,22 +105,7 @@ router.post("/", isSpecificUserOrAdmin(req => req.body.userId), async (req, res,
 router.get("/user/:id", validateResourceId, isSpecificUserOrAdmin(req => parseInt(req.params.id)), async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
-    const orders = await prisma.order.findMany({
-      where: { userId },
-      include: {
-        orderItems: {
-          include: {
-            product: {
-              select: {
-                name: true,
-                imageURL: true
-              }
-            }
-          }
-        }
-      }
-    });
-
+    const orders = await db.getOrdersByUserId(userId);
     res.status(200).json(orders);
   } catch (error) {
     next(error);
@@ -135,36 +121,8 @@ router.get("/", validateOrderQueryParams, isAdmin, async (req, res, next) => {
     const where = {};
     if (status) where.status = status;
 
-    const [orders, totalCount] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        skip: skip || 0,
-        take: take || 10,
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              email: true
-            }
-          },
-          orderItems: {
-            include: {
-              product: {
-                select: {
-                  name: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      }),
-      prisma.order.count({ where })
-    ]);
-
+    const { orders, totalCount } = await db.getAllOrders({ where, skip, take });
+  
     res.status(200).json({
       orders,
       pagination: {
@@ -187,25 +145,7 @@ router.get("/:id", validateResourceId, isSpecificUserOrAdmin(async (req) => {
 }), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-            address: true
-          }
-        },
-        orderItems: {
-          include: {
-            product: true
-          }
-        }
-      }
-    });
-
+    const order = await db.getOrderById(id);
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
@@ -218,7 +158,7 @@ router.get("/:id", validateResourceId, isSpecificUserOrAdmin(async (req) => {
 
 // PATCH /api/order/:id/status
 // Update order status
-router.patch("/:id/status", validateResourceId, isAdmin, async (req, res, next) => {
+router.patch("/:id/status", validateResourceId, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -235,10 +175,7 @@ router.patch("/:id/status", validateResourceId, isAdmin, async (req, res, next) 
       });
     }
 
-    const order = await prisma.order.update({
-      where: { id },
-      data: { status }
-    });
+    const order = await db.updateOrderStatus(id, status);
 
     res.status(200).json(order);
   } catch (error) {
