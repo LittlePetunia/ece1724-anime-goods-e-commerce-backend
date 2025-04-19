@@ -51,29 +51,11 @@ The primary objectives of the project were as follows:
 
 ## 4. Technical Stack
 
-### Frontend
+We opted for Express.js for our backend architecture and React (Tailwind CSS and Shadcn/UI)-based frontend UI developed with Tailwind CSS and Shadcn/UI) in a clear “frontend–backend” split. Node.js in combination with Express is used on the server side, and a comprehensive RESTful API is served on the `/api` namespace. All data access is handled by Prisma ORM (`@prisma/client`), and our schema is placed at `prisma/schema.prisma`. This schema includes four main entities, which are a User, Product, Order and OrderItem, along with two enums (OrderStatus and ProductStatus), their relations, indices, and timestamps set to auto fill. `npx prisma migrate dev` takes care of database migrations, while changes in schema will invoke generation of a type‑safe Prisma Client when `prisma generate` is executed.
 
-- **Framework & Libraries:** React, Next.js (or as chosen, using Next.js Full-Stack approach), Tailwind CSS, Shadcn/UI.
-- **Features:** Responsive design, dynamic shopping cart, product search/filter interface, and detailed product views.
+PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas.
 
-### Backend
-
-- **Framework & Libraries:** Node.js with Express.js.
-- **Key Services:** RESTful API for CRUD operations, user authentication (with role-based access control), error handling, and logging.
-
-### Database
-
-- **Database System:** PostgreSQL
-- **Schema:**  
-  - **Users Table:** Contains user data, with email-based indexing and a boolean for admin privileges.
-  - **Products Table:** Stores product details including description, pricing, availability, and status.
-  - **Orders and Order Items Tables:** Supports one-to-many and many-to-many relationships between users, products, and orders.
-
-### Cloud & Other Integrations
-
-- **Cloud Storage:** AWS S3 (or an equivalent cloud service) to handle product images and static assets.
-- **Additional Services:** Integration for email notifications, simulated payment processing mechanisms, and third-party API support where applicable.
-
+To support file handling, product images are stored in an AWS S3 bucket, with credentials and bucket name supplied via environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`). In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration and deployment, GitHub Actions run our test suite and, on successful builds, deploy the backend to Heroku and the frontend to Vercel whenever changes are merged into `main`.
 ---
 
 ## 5. Features
