@@ -286,7 +286,89 @@ PUT /api/product/3
 ```
 
 ---
+# Order API Documentation
 
+## POST `/api/order`
+Create a new order.
+
+**Input:**
+```json
+{
+  "userId": 1,
+  "status": "PENDING",
+  "items": [
+    { "productId": 3, "quantity": 2 },
+    { "productId": 5, "quantity": 1 }
+  ]
+}
+```
+
+**Response:** Returns the created order and its items.
+
+---
+
+## GET `/api/order/user/:userId`
+Get all orders for a specific user.
+
+**Example:**
+```
+GET /api/order/user/1
+```
+
+**Response:**
+A list of orders
+
+---
+
+## GET `/api/order`
+Get all orders (admin only), with optional filtering and pagination.
+
+**Query Parameters:**
+- `status`: `PENDING`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
+- `skip`: number (default: 0)
+- `take`: number (default: 10, max: 100)
+
+**Example:**
+```
+GET /api/order?status=SHIPPED&skip=0&take=5
+```
+
+**Response:** Paginated list of orders with user info and order items.
+
+---
+
+## GET `/api/order/:id`
+Get a specific order by ID.
+
+**Example:**
+```
+GET /api/order/42
+```
+
+**Response:** Order
+
+---
+
+## PATCH `/api/order/:id/status`
+Update the status of an order.
+
+**Input:**
+```json
+{
+  "status": "CANCELLED"
+}
+```
+
+**Valid statuses:**
+- `PENDING`
+- `PROCESSING`
+- `SHIPPED`
+- `DELIVERED`
+- `CANCELLED`
+
+**Response:** Order
+
+---
 
 ## Setup
 

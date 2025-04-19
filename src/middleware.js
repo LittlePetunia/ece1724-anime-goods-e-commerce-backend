@@ -91,17 +91,13 @@ const validateOrderInput = (order) => {
         errors.push("At least one order item is required");
     } else {
         order.items.forEach((item, index) => {
-        if (!item.productId || typeof item.productId !== 'number' || !Number.isInteger(item.productId) || item.productId <= 0) {
-            errors.push(`Order item ${index + 1}: Valid product ID is required`);
-        }
+            if (!item.productId || typeof item.productId !== 'number' || !Number.isInteger(item.productId) || item.productId <= 0) {
+                errors.push(`Order item ${index + 1}: Valid product ID is required`);
+            }
 
-        if (!item.quantity || typeof item.quantity !== 'number' || !Number.isInteger(item.quantity) || item.quantity <= 0) {
-            errors.push(`Order item ${index + 1}: Valid quantity is required`);
-        }
-
-        if (!item.unitPrice || typeof item.unitPrice !== 'number' || item.unitPrice <= 0) {
-            errors.push(`Order item ${index + 1}: Valid unit price is required`);
-        }
+            if (!item.quantity || typeof item.quantity !== 'number' || !Number.isInteger(item.quantity) || item.quantity <= 0) {
+                errors.push(`Order item ${index + 1}: Valid quantity is required`);
+            }
         });
     }
 

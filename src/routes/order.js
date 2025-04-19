@@ -87,9 +87,9 @@ router.post("/", async (req, res, next) => {
 
 // GET /api/order/user/:userId
 // Get orders by user ID
-router.get("/user/:userId", validateResourceId, async (req, res, next) => {
+router.get("/user/:id", validateResourceId, async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = parseInt(req.params.id);
     const orders = await prisma.order.findMany({
       where: { userId },
       include: {
@@ -116,11 +116,10 @@ router.get("/user/:userId", validateResourceId, async (req, res, next) => {
 // Get all orders with optional filtering (admin)
 router.get("/", validateOrderQueryParams, async (req, res, next) => {
   try {
-    const { status, userId, skip, take } = req.query;
+    const { status, skip, take } = req.query;
     
     const where = {};
     if (status) where.status = status;
-    if (userId) where.userId = userId;
     
     const [orders, totalCount] = await Promise.all([
       prisma.order.findMany({
@@ -206,60 +205,25 @@ router.patch("/:id/status", validateResourceId, async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+
+    const validStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+
     if (!status) {
       return res.status(400).json({ error: "Status is required" });
     }
 
-    const validStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ 
         error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
       });
     }
 
-    const existingOrder = await prisma.order.findUnique({
+    const order = await prisma.order.update({
       where: { id },
-      include: { orderItems: true }
+      data: { status }
     });
-    
-    if (!existingOrder) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-    
-    if (status === 'CANCELLED' && existingOrder.status !== 'CANCELLED') {
-      for (const item of existingOrder.orderItems) {
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId }
-        });
-        
-        if (product) {
-          await prisma.product.update({
-            where: { id: item.productId },
-            data: { stock: product.stock + item.quantity }
-          });
-        }
-      }
-    }
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: { status },
-      include: {
-        orderItems: {
-          include: {
-            product: {
-              select: {
-                name: true,
-                price: true
-              }
-            }
-          }
-        }
-      }
-    });
-    
-    res.status(200).json(updatedOrder);
+    res.status(200).json(order);
   } catch (error) {
     next(error);
   }
