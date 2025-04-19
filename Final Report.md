@@ -9,8 +9,8 @@
   *Email:* miing.yu@mail.utoronto.ca
 
 - **Chuyue Zhang**  
-  *Student Number:* []  
-  *Email:* 
+  *Student Number:* 1005728303  
+  *Email:* zhangchuyue.zhang@mail.utoronto.ca
 
 - **Qiao Song**  
   *Student Number:* []  
