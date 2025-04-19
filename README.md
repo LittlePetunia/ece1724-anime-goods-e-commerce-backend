@@ -167,6 +167,127 @@ Update user information
 
 ---
 
+# Product API Endpoints
+
+---
+
+## POST `/api/product`
+Create a new product.
+
+**Input:**
+```json
+{
+  "name": "Naruto Action Figure",
+  "brand": "Bandai",
+  "description": "A high-quality Naruto Uzumaki action figure with multiple accessories.",
+  "price": 29.99,
+  "category": "Figures",
+  "imageURL": "https://example.com/images/naruto-figure.jpg",
+  "stock": 100,
+  "status": "ACTIVE"
+}
+```
+
+**Response:**
+Returns the created product with timestamps.
+
+---
+
+## GET `/api/product`
+Get a list of products with optional search, filtering, sorting, and pagination.
+
+**Query Parameters:**
+- `search`: Search string (name, brand, description)
+- `status`: Filter by status (`ACTIVE`, `INACTIVE`, `DISCONTINUED`)
+- `sortBy`: Field to sort by (`name`, `price`, `stock`, `brand`, `id`, `createdAt`)
+- `sortOrder`: `asc` or `desc`
+- `skip`: Items to skip (for pagination)
+- `take`: Items to return (page size, max 100)
+
+**Request:**
+```
+GET /api/product?search=naruto&status=ACTIVE&sortBy=price&sortOrder=desc&skip=0&take=5
+```
+
+**Response:**
+```json
+{
+  "products": [ { ... } ],
+  "pagination": {
+    "total": 1,
+    "page": 1,
+    "pageSize": 5,
+    "totalPages": 1
+  }
+}
+```
+
+---
+
+## GET `/api/product/:id`
+
+**Example:**
+```
+GET /api/product/3
+```
+
+**Response:**
+```json
+{
+  "id": 3,
+  "name": "Naruto Figure",
+  "brand": "Bandai",
+  "description": "Limited edition Naruto Uzumaki figure",
+  "price": 29.99,
+  "stock": 100,
+  "category": "Figures",
+  "status": "ACTIVE",
+  "imageURL": "https://example.com/images/naruto.jpg",
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+**Error:**
+```json
+{
+  "error": "Product not found"
+}
+```
+
+---
+
+## PUT `/api/product/:id`
+Update an existing product.
+
+**Example:**
+```
+PUT /api/product/3
+```
+
+**Input:**
+```json
+{
+  "name": "Naruto Figure - Updated",
+  "brand": "Bandai",
+  "description": "Updated description",
+  "price": 39.99,
+  "imageURL": "https://example.com/images/naruto-updated.jpg",
+  "stock": 80,
+  "status": "ACTIVE"
+}
+```
+
+**Error:**
+```json
+{
+  "error": "Product not found"
+}
+```
+
+---
+
+
 ## Setup
 
 1. Clone the repository.

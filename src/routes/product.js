@@ -29,6 +29,7 @@ router.post("/", async (req, res, next) => {
         brand: product.brand,
         description: product.description,
         price: product.price,
+        category: product.category,
         imageURL: product.imageURL,
         stock: product.stock,
         status: product.status
@@ -146,58 +147,6 @@ router.put("/:id", validateResourceId, async (req, res, next) => {
         stock: productUpdate.stock,
         status: productUpdate.status
       }
-    });
-    
-    res.status(200).json(updatedProduct);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// PATCH /api/product/:id
-// Partial update product
-router.patch("/:id", validateResourceId, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const updates = req.body;
-    
-    const partialProduct = {...req.body};
-    
-    if (updates.status && !['ACTIVE', 'INACTIVE', 'DISCONTINUED'].includes(updates.status)) {
-      return res.status(400).json({ 
-        error: "Validation Error",
-        message: "Invalid product status",
-        details: ["Status must be ACTIVE, INACTIVE, or DISCONTINUED"]
-      });
-    }
-    
-    if (updates.price !== undefined && (typeof updates.price !== 'number' || updates.price <= 0)) {
-      return res.status(400).json({
-        error: "Validation Error",
-        message: "Invalid price value",
-        details: ["Price must be a positive number"]
-      });
-    }
-    
-    if (updates.stock !== undefined && (typeof updates.stock !== 'number' || !Number.isInteger(updates.stock) || updates.stock < 0)) {
-      return res.status(400).json({
-        error: "Validation Error",
-        message: "Invalid stock value",
-        details: ["Stock quantity must be a non-negative integer"]
-      });
-    }
-
-    const existingProduct = await prisma.product.findUnique({
-      where: { id }
-    });
-    
-    if (!existingProduct) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: updates
     });
     
     res.status(200).json(updatedProduct);
