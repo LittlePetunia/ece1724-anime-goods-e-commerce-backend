@@ -63,25 +63,11 @@ To support file handling, product images are stored in an AWS S3 bucket, with cr
 
 ## 5. Features
 
-### 5.1 Customer-Facing Features
+Our application features a complete workflow for user management which includes account creation and secure logins. In the current version, when a new user registers through the application interface with `POST /api/user`, their email is having uniqueness verified at the database level. For now, passwords are stored without hashing, though our future work will include migrating to securely hashed passwords. In this version, login is performed by supplying a password which is then compared with the one stored, after which a user profile object which does not include sensitive data such as `password` is returned. Registered users can update or delete their profiles with `PUT /api/user/:id` and `DELETE /api/user/:id`, respectively. A custom middleware ensures all requests comply with correct data types and formats.
 
-- **Product Catalog:**  
-  An extensive catalog with search, filter, and detailed product view options.  
-- **User Dashboard:**  
-  Enables customers to view, track, and update their order statuses.
-- **Shopping Cart & Checkout:**  
-  A dynamic cart interface with a simulated checkout process for seamless order placement.
-- **User Account Management:**  
-  Secure authentication, profile management, and order history tracking.
+The product catalog supports all CRUD requirements, as defined in the course. Through `POST /api/product`, administrators are able to create new products by supplying name, brand, description, price, category, stock, status, and imageURL. Individual items are retrievable through `GET /api/product/:id`, while the entire catalog can be accessed via `GET /api/product`, allowing for searching in a case insensitive manner over the name, brand, and description. A custom middleware parses and validates the supplied pagination parameters (`skip`, `take`) with sorting by any indexed field, including but not limited to: price, stock, and creation date. Updating is done through `PUT /api/product/:id`, and deletion is done using `DELETE /api/product/:id`, which safeguards referential integrity by preventing removal of products that appear in existing orders (suggesting they be marked as DISCONTINUED instead).
 
-### 5.2 Administrative Features
-
-- **Admin Dashboard:**  
-  A comprehensive interface for managing products, orders, and users.
-- **Inventory Management:**  
-  Tools to update product details, stock, and pricing.
-- **Reporting & Notifications:**  
-  Automated systems for order confirmation and status updates via email notifications.
+Order processing is implemented as a five‑endpoint workflow. A new order is created with `POST /api/order`, where incoming items are validated for existence, availability (ACTIVE status), and sufficient stock. Stock quantities are decremented in the same transaction that writes the Order and corresponding OrderItem records. Users can fetch their own orders via `GET /api/order/user/:id`, complete with product snapshots (including name and imageURL). Administrators have a paginated, filterable overview of all orders at `GET /api/order`, with optional status filters and pagination metadata. Detailed order views are available at `GET /api/order/:id`, including user contact and full line‑item details, and order statuses can be updated through the lifecycle (PENDING → PROCESSING → SHIPPED → DELIVERED → CANCELLED) via the `PATCH /api/order/:id/status` endpoint.
 
 ---
 
