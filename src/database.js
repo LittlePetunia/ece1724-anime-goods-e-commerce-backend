@@ -111,27 +111,37 @@ const dbOperations = {
 
   getAllProducts: async (filters = {}) => {
     try {
-      const whereClause = {};
+      const { search, status, sortBy, sortOrder, skip = 0, take = 10 } = filters;
 
-      if (filters.status) {
-        whereClause.status = filters.status;
+      const where = {};
+
+      if (status) {
+        where.status = filters.status;
       }
 
-      if (filters.search) {
-        whereClause.OR = [
-          { name: { contains: filters.search, mode: 'insensitive' } },
-          { description: { contains: filters.search, mode: 'insensitive' } },
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { brand: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
         ];
       }
 
+      const orderBy = {};
+      if (sortBy) {
+        orderBy[sortBy] = sortOrder === 'desc' ? 'desc' : 'asc';
+      } else {
+        orderBy.id = 'asc';
+      }
+
       const products = await prisma.product.findMany({
-        where: whereClause,
-        orderBy: filters.sortBy ? { [filters.sortBy]: filters.sortOrder || 'desc' } : { id: 'desc' },
+        where,
+        orderBy,
         skip: filters.skip,
         take: filters.take,
       });
 
-      const totalCount = await prisma.product.count({ where: whereClause });
+      const totalCount = await prisma.product.count({ where: where });
 
       return { products, totalCount };
     } catch (error) {
@@ -305,6 +315,19 @@ const dbOperations = {
       throw error;
     }
   },
+
+  hasOrderItems: async (productId) => {
+    try {
+      const count = await prisma.orderItem.count({
+        where: { productId }
+      });
+  
+      return count > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 };
 
 
