@@ -19,7 +19,7 @@ model User {
   lastName  String
   password  String
   email     String   @unique
-  address   String
+  address   String?
   isAdmin   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
