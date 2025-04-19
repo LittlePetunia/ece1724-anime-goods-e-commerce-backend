@@ -17,8 +17,8 @@
   *Email:* 
 
 - **Yushun Tang**  
-  *Student Number:* []  
-  *Email:* 
+  *Student Number:* 1011561962
+  *Email:* yushun.tang@mail.utoronto.ca
 
 
 
