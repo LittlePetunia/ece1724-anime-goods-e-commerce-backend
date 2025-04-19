@@ -56,13 +56,28 @@ const dbOperations = {
       await prisma.user.delete({
         where: { id },
       });
-  
+
       return;
     } catch (error) {
       throw error;
     }
   },
 
+  /**
+   * Get a user by their ID
+   * @param {number} id - The user ID
+   * @returns {Promise<Object|null>} The user object or null if not found
+   */
+  getUserById: async (id) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id }
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   // Product Operations
   createProduct: async (productData) => {
@@ -88,27 +103,27 @@ const dbOperations = {
   getAllProducts: async (filters = {}) => {
     try {
       const whereClause = {};
-      
+
       if (filters.status) {
         whereClause.status = filters.status;
       }
-      
+
       if (filters.search) {
         whereClause.OR = [
           { name: { contains: filters.search, mode: 'insensitive' } },
           { description: { contains: filters.search, mode: 'insensitive' } },
         ];
       }
-      
+
       const products = await prisma.product.findMany({
         where: whereClause,
         orderBy: filters.sortBy ? { [filters.sortBy]: filters.sortOrder || 'desc' } : { id: 'desc' },
         skip: filters.skip,
         take: filters.take,
       });
-      
+
       const totalCount = await prisma.product.count({ where: whereClause });
-      
+
       return { products, totalCount };
     } catch (error) {
       throw error;
@@ -157,7 +172,7 @@ const dbOperations = {
       for (const item of orderData.items) {
         totalAmount += item.unitPrice * item.quantity;
       }
-      
+
       const order = await prisma.order.create({
         data: {
           userId: orderData.userId,
@@ -208,15 +223,15 @@ const dbOperations = {
   getAllOrders: async (filters = {}) => {
     try {
       const whereClause = {};
-      
+
       if (filters.status) {
         whereClause.status = filters.status;
       }
-      
+
       if (filters.userId) {
         whereClause.userId = filters.userId;
       }
-      
+
       const orders = await prisma.order.findMany({
         where: whereClause,
         include: {
@@ -231,9 +246,9 @@ const dbOperations = {
         skip: filters.skip,
         take: filters.take,
       });
-      
+
       const totalCount = await prisma.order.count({ where: whereClause });
-      
+
       return { orders, totalCount };
     } catch (error) {
       throw error;
