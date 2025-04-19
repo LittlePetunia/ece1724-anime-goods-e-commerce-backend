@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const db = require("../database");
 const { 
   validateProductInput, 
   validateProductQueryParams, 
@@ -22,9 +23,9 @@ router.post("/", async (req, res, next) => {
         details: errors
       });
     }
-    
-    const newProduct = await prisma.product.create({
-      data: {
+
+    const newProduct = await db.createProduct(
+      {
         name: product.name,
         brand: product.brand,
         description: product.description,
@@ -34,8 +35,8 @@ router.post("/", async (req, res, next) => {
         stock: product.stock,
         status: product.status
       }
-    });
-    
+    );
+
     res.status(201).json(newProduct);
   } catch (error) {
     next(error);

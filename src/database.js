@@ -73,6 +73,7 @@ const dbOperations = {
           description: productData.description,
           price: productData.price,
           imageURL: productData.imageURL,
+          category: productData.category,
           stock: productData.stock,
           status: productData.status || 'ACTIVE',
           brand: productData.brand,
