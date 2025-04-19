@@ -63,9 +63,10 @@ const validateUserInput = (user) => {
         errors.push("Email format is invalid");
     }
 
-    if (!user.address || typeof user.address !== 'string' || user.address.trim() === '') {
-        errors.push("Address is required");
-    }
+    // allow address to be empty
+    // if (!user.address || typeof user.address !== 'string' || user.address.trim() === '') {
+    //     errors.push("Address is required");
+    // }
 
     if (user.isAdmin !== undefined && typeof user.isAdmin !== 'boolean') {
         errors.push("isAdmin must be a boolean value");
@@ -144,7 +145,7 @@ const validateProductQueryParams = (req, res, next) => {
         req.query.take = parsedTake;
         }
     } else {
-        req.query.take = 10; 
+        req.query.take = 10;
     }
 
     if (errors.length > 0) {
@@ -195,7 +196,7 @@ const validateOrderQueryParams = (req, res, next) => {
         req.query.take = parsedTake;
         }
     } else {
-        req.query.take = 10; 
+        req.query.take = 10;
     }
 
     if (errors.length > 0) {
