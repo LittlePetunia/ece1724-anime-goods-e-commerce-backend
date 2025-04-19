@@ -17,6 +17,12 @@ router.post("/", async (req, res, next) => {
   try {
       const { firstName, lastName, password, email, address, isAdmin } = req.body;
       const operation = async () => {
+        const checkDup = await db.getUserByEmail(email);
+        if (checkDup) {
+          return res.status(401).json({
+            error: "Email already registered"
+          });
+        }
         const user = await db.createUser({ firstName, lastName, password, email, address, isAdmin });
         const { password: _, ...safeUser } = user;
         res.status(201).json(safeUser);
@@ -27,7 +33,6 @@ router.post("/", async (req, res, next) => {
       } else {
         operation();
       }
-
   } catch (error) {
     next(error);
   }
