@@ -30,6 +30,15 @@ const dbOperations = {
     }
   },
 
+  getAllUsers: async () => {
+    try {
+      const users = await prisma.user.findMany();
+      return users;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getUserByEmail: async (email) => {
     try {
       const user = await prisma.user.findUnique({where: { email }});

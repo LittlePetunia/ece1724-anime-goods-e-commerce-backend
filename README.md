@@ -74,6 +74,43 @@ Get all non-admin users (admin only)
 
 ---
 
+### GET `/api/user/all`
+Get all users (admin only)
+
+**Header:**
+```
+Authorization: Bearer <your_admin_token>
+```
+
+---
+
+## Request
+
+```bash
+curl -X GET http://localhost:3000/api/user/all \
+  -H "Authorization: Bearer token..."
+```
+
+---
+
+## Output
+
+```json
+[
+  {
+    "id": 1,
+    "firstName": "Admin",
+    "lastName": "User",
+    "email": "admin@example.com",
+    "address": null,
+    "isAdmin": true,
+    "createdAt": "2025-04-18T00:00:00.000Z",
+    "updatedAt": "2025-04-18T00:00:00.000Z"
+  },
+  ...
+]
+```
+
 ### GET `/api/user/:email`
 Find a user by email (requires authentication - only the user or an admin can access)
 

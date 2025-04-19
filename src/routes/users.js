@@ -54,6 +54,18 @@ router.get(
   }
 );
 
+// GET /api/user/all
+// Get all users (Admin)
+router.get("/all", requireAdminAuth, async (req, res, next) => {
+  try {
+    const users = await db.getAllUsers();
+    const safeUsers = users.map(({ password, ...user }) => user);
+    res.status(200).json(safeUsers);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /api/user/:email
 // Find user by email
 router.get("/:email", async (req, res, next) => {
