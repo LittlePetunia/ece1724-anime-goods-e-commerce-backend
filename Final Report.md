@@ -174,30 +174,32 @@ Figure 8\. Frontend User
 
    - Clone the repository:
 
-      backend
-      ```bash
-      git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
-      cd ece1724-anime-goods-e-commerce-backend
-      ```
+     backend
 
-      frontend
-      ```bash
-      git clone https://github.com/IronDumpling/anime-goods-e-commerce-frontend.git
-      cd anime-goods-e-commerce-frontend
-      ```
+     ```bash
+     git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
+     cd ece1724-anime-goods-e-commerce-backend
+     ```
+
+     frontend
+
+     ```bash
+     git clone https://github.com/IronDumpling/anime-goods-e-commerce-frontend.git
+     cd anime-goods-e-commerce-frontend
+     ```
 
 
    - Install dependencies for both frontend and backend:
 
-      ```bash
-      npm install
-      ```
+     ```bash
+     npm install
+     ```
 
 3. **Environment Configuration**
 
 
     Backend: create a `.env` file in the project root with the following content:
-
+    
     ```env
     # PostgreSQL database URL
     DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
@@ -205,11 +207,12 @@ Figure 8\. Frontend User
 
 4. **Database Initialization & Prisma Client Generation**
 
-    backend
-    ```bash
-    npx prisma migrate dev --name init
-    npx prisma generate
-    ```
+   backend
+
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
 
 5. **Running the Application Locally**
 
@@ -230,6 +233,8 @@ Figure 8\. Frontend User
        ```bash
        npm run start
        ```
+
+       The site will be available at http://localhost:3000.
 
 
 ---
@@ -296,3 +301,6 @@ Lastly, we would like to once again thank the professor and TAs for their though
 
 ---
 
+## Video Demo
+
+https://youtu.be/JG-0Qhk72XQ
