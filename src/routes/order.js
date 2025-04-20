@@ -122,7 +122,7 @@ router.get("/", validateOrderQueryParams, isAdmin, async (req, res, next) => {
     if (status) where.status = status;
 
     const { orders, totalCount } = await db.getAllOrders({ where, skip, take });
-  
+
     res.status(200).json({
       orders,
       pagination: {

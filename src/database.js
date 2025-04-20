@@ -220,21 +220,35 @@ const dbOperations = {
 
   getOrdersByUserId: async (userId) => {
     try {
-      const orders = await prisma.order.findMany({
-        where: { userId },
-        include: {
-          orderItems: {
-            include: {
-              product: {
-                select: {
-                  name: true,
-                  imageURL: true
+      const where = { userId };
+      const [orders, totalCount] = await Promise.all([
+        prisma.order.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            },
+            orderItems: {
+              include: {
+                product: {
+                  select: {
+                    name: true,
+                    imageURL: true
+                  }
                 }
               }
             }
+          },
+          orderBy: {
+            createdAt: 'desc'
           }
-        }
-      });
+        }),
+        prisma.order.count({ where })
+      ]);
       return orders;
     } catch (error) {
       throw error;
@@ -321,7 +335,7 @@ const dbOperations = {
       const count = await prisma.orderItem.count({
         where: { productId }
       });
-  
+
       return count > 0;
     } catch (error) {
       throw error;
