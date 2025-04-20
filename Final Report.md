@@ -17,19 +17,13 @@
   *Student Number:* 1011561962  
   *Email:* yushun.tang@mail.utoronto.ca
 
-
-
-
-
 ---
 
 ## 2. Motivation
 
 ### Problem Background
 
-With the ongoing global rise of animation culture and the steadily increasing compound annual growth rate of the derivative merchandise market, traditional e-commerce platforms have revealed notable limitations in addressing the demands of core ACG (Anime, Comic, and Game) users.  A vast number of products are classified and mixed, and the search efficiency is low, which makes it impossible for users to accurately locate the genuine figurines or limited edition peripheral products they need even after frequently turning pages. Meanwhile, local Japanese e-commerce platforms have serious language and payment barriers. Many do not support international credit cards or mainstream third-party payment systems. The cross-border purchasing process is often complex, accompanied by high intermediary fees and import tariffs, further increasing the financial burden on consumers. Moreover, in the second-hand trading space, it is difficult to distinguish the authenticity  of product. The frequent occurrence of counterfeit and substandard goods forces consumers into a dilemma between safeguarding their rights and bearing the cost of diminished trust.
-
-Furthermore, conventional e-commerce platforms lack dedicated communities and interaction mechanisms, making it difficult to foster user engagement or cultivate fan loyalty. As a result, they fail to generate effective brand word-of-mouth promotion or secondary dissemination within fan communities.
+With the ongoing global rise of animation culture and the steadily increasing compound annual growth rate of the derivative merchandise market, traditional e-commerce platforms have revealed notable limitations in addressing the demands of core ACG (Anime, Comic, and Game) users.  A vast number of products are classified and mixed, and the search efficiency is low, which makes it impossible for users to accurately locate the genuine figurines or limited edition peripheral products they need even after frequently turning pages. Meanwhile, local Japanese e-commerce platforms have serious language and payment barriers. Many do not support international credit cards or mainstream third-party payment systems. The cross-border purchasing process is often complex, accompanied by high intermediary fees and import tariffs, further increasing the financial burden on consumers. Moreover, in the second-hand trading space, it is difficult to distinguish the authenticity  of product. The frequent occurrence of counterfeit and substandard goods forces consumers into a dilemma between safeguarding their rights and bearing the cost of diminished trust. Furthermore, conventional e-commerce platforms lack dedicated communities and interaction mechanisms, making it difficult to foster user engagement or cultivate fan loyalty. As a result, they fail to generate effective brand word-of-mouth promotion or secondary dissemination within fan communities.
 
 In response to these pain points—namely *inefficient search, limited purchasing access, authenticity concerns, and insufficient community interaction*—we propose a dedicated e-commerce platform specializing in anime-related merchandise. Through refined product classification and special topic planning, users can directly access the complete product line of their favorite series or characters with just one click, completely saying goodbye to the trouble of getting lost in a vast list.
 
@@ -63,9 +57,9 @@ The primary goals of this project were defined to guide our implementation and m
 
   To enhance users' experience, we provide features like simulated payment processing, real-time order tracking, and automated notifications to improve overall service quality. Beyond simple CRUD, our implementation simulates a full checkout workflow: the frontend invokes `POST /api/order`, the backend validates stock, decrements inventory and writes `Order` and `OrderItem` records within a transaction, and returns confirmations. Users can immediately track their orders in real time via (`GET /api/order/user/:id`), view detailed order pages via (`GET /api/order/:id`), and admins can filter, paginate and update statuses via (`PATCH /api/order/:id/status`). Although payment and email notifications are stubbed during development, our clean API design and pluggable architecture ensure that integrating real gateways or notification services will be straightforward, laying the groundwork for a fully production‑grade platform.
 
+![Figure 1](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure1.png?raw=true)
 
-
-
+Figure 1\. Infrastructure Diagram
 
 ---
 
@@ -75,9 +69,19 @@ We opted for Express.js for our backend architecture and React (Tailwind CSS and
 
 Our front-end implementation adopts React and TypeScript to build a single-page application, uses React Router to manage routes, and Tailwind CSS in combination with Shadcn/UI to achieve a consistent visual style and responsive layout. The application status is managed through two sets of Contexts: AuthContext is responsible for login, logout and role determination, and persists the token and user information to localStorage; CartContext is responsible for the addition, deletion, quantity and selection status of items in the shopping cart, and updates the total number of items in real time in the navigation bar. The entire page is wrapped by the Layout component, which includes the navigation bar (brand, category dropdown, search box, user menu, and shopping cart preview), the Outlet block, and the container and footer. All error states (401, 403, 404, 500) are uniformly rendered through the HttpError component, making ICONS, titles, descriptions, and operation buttons clear at a glance, ensuring a good user experience when permissions or resources are abnormal. The product list uses the ProductCard and ProductEntry components to present thumbnails, inventory badges and operation buttons; The shopping cart page displays ICONS for increasing or decreasing quantities, checking, and deleting through the CartListEntry component, and falls back to display placeholder ICONS when image loading fails. In the development process, Vite (or Create React App) is used to implement hot reloading. The code quality is guaranteed by ESLint/Prettier, and component Testing is accomplished by React Testing Library and Jest.
 
+![Figure 2](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure2.png?raw=true)
+
+Figure 2\. Project Frontend Structure
+
 For the backend, we use Node.js with Express.js to provide RESTful APIs under the `/api` namespace. All database access is handled via Prisma ORM (`@prisma/client`). The schema is defined in `prisma/schema.prisma` and includes four main entities — User, Product, Order, and OrderItem — as well as two enums: OrderStatus and ProductStatus. The schema is configured with auto-incrementing primary keys, unique indexes, relationship mappings, and automatic timestamps. PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas. To support file handling, product images are stored in an AWS S3 bucket, with credentials and bucket name supplied via environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`). In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration and deployment, GitHub Actions run our test suite and, on successful builds, deploy the backend to Heroku and the frontend to Vercel whenever changes are merged into `main`.
 
+![Figure 3](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure3.png?raw=true)
 
+Figure 3\. Project Backend Workflow
+
+![Figure 4](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure4.png?raw=true)
+
+Figure 4\. Project Database Structure
 
 ---
 
@@ -92,6 +96,10 @@ Order processing is implemented as a five‑endpoint workflow. A new order is cr
 Generally speaking from the perspective of the users, the site begins with a fully responsive homepage. Users can view the paginated displayed product cards on the home page. Each card contains a thumbnail of the product, a title, a truncated description, a price and stock badge (" In Stock "/" Out of Stock "), and provides three operations: "View Details", "Add to Cart", and "Buy Now". The category drop-down menu is dynamically pulled from the back end or the mock interface, and can be jumped to the corresponding category list with one click. The search box supports real-time input and enter filtering, and automatically updates URL parameters. The user avatar on the right side of the navigation bar shows the login/registration entry when not logged in. When logged in, the user’s avatar icon reveals a contextual menu: customers see links to their Dashboard and Orders pages, admins see links to manage orders, products and users, and both roles can log out. The shopping cart icon will display the real-time product quantity badge. When hovered over, the shopping cart preview will be expanded, listing the product image, title, unit price × quantity, and providing links for “Go to Cart” or “Checkout” buttons. 
 
 The main cart page uses `CartListEntry` entries, each letting the user toggle selection via checkbox, adjust quantity with plus/minus buttons or direct input (bounded by stock), and remove items. When settling the bill, click Place Order”. The front end will verify the stock again and call the back-end interface. The inventory will be deducted in a transactional manner and an order will be generated. After a successful transaction, the order confirmation information will be returned and (in the development environment) an email will be simulated on the console. Users can view the list of historical and current orders through "My Orders", and click to enter the order details page to view the user information, product details, price, quantity and status of each order. When there is no permission access or the resource does not exist, ProtectedRoute will render the corresponding HttpError page to guide the user to log in, roll back or try again.
+
+
+
+
 
 ---
 
@@ -229,8 +237,6 @@ On the products page, cards are laid out in a responsive grid. Clicking “View 
 
    
 
-       
-  
 ---
 
 ## 8. Deployment Information
@@ -252,17 +258,22 @@ where performance is monitored through Heroku Metrics and automatic vulnerabilit
 
 Each team member contributed significantly to the project's success, with responsibilities clearly aligned with their areas of expertise. The contributions are summarized below:
 
-- **Astra Yu:**  
-  - 
+Table 1\. Responsibilities for each team member
 
-- **Chuyue Zhang:**  
-  - 
-
-- **Qiao Song:**  
-  - 
-
-- **Yushun Tang:**  
-  - 
+| Category                     | Task Description                                         | Astra Yu | Chuyue Zhang | Qiao Song | Yushun Tang |
+| :--------------------------- | :------------------------------------------------------- | :------- | :----------- | :-------- | :---------- |
+| Frontend                     | Frontend Utility Layer (API Client, Authentication, …)   |          | ✓            |           | ✓           |
+|                              | Views Functionality                                      |          | ✓            |           | ✓           |
+|                              | UI/UX Design                                             |          | ✓            |           |             |
+| Backend                      | Backend Utility Layer(Logging, Files, Error Handling, …) | ✓        |              | ✓         |             |
+|                              | PostgreSQL Database                                      | ✓        |              | ✓         |             |
+|                              | Authentication & Access Control                          | ✓        |              | ✓         |             |
+|                              | Third Party Integration(Cloud Storage, …)                | ✓        |              | ✓         |             |
+|                              | API Implementation                                       | ✓        |              | ✓         |             |
+| Testing & Product Management | Unit Tests                                               | ✓        | ✓            | ✓         | ✓           |
+|                              | Integration Tests                                        |          |              |           | ✓           |
+|                              | Performance Optimization                                 |          | ✓            |           | ✓           |
+|                              | Product Status Tracking                                  |          | ✓            |           |             |
 
 
 
