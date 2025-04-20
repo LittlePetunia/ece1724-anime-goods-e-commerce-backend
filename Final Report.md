@@ -280,10 +280,14 @@ Each team member contributed significantly to the project's success, with respon
 ### Lessons Learned
 
 
-Throughout the project, our team acquired a range of valuable insights that will inform our future development practices. One of the key takeaways was the importance of modular development. By establishing clear and consistent interfaces between the frontend and backend, we were able to enhance the scalability of our application and simplify future maintenance.
-We also benefited greatly from adopting agile collaboration. A well-structured weekly plan and a clear division of responsibilities allowed us to maintain steady progress and consistently meet our milestones. This approach fostered accountability and improved team efficiency.
+Throughout the project, our team acquired a range of valuable insights that will inform our future development practices. One of the key takeaways was the importance of modular development. By establishing clear and consistent interfaces between the frontend and backend, defining separate Express routers for users, products and orders in `src/routes/`, centralizing all Prisma calls in `src/database.js`, and encapsulating shared logic in middleware, we were able to enhance the scalability of our application and simplify future maintenance.
+We also benefited greatly from adopting agile collaboration. A well-structured weekly plan and a clear division of responsibilities with tasks tracked in our project board and daily stand‑up check‑ins, gave us clear short‑term goals and allowed us to maintain steady progress and consistently meet our milestones. This approach fostered accountability and improved team efficiency.
 In addition, working with cloud integration and security deepened our appreciation for the complexities of real-world application deployment. Incorporating cloud storage solutions and safeguarding user data pushed us to adopt industry best practices and consider system robustness from both a technical and ethical standpoint.
-Finally, we learned that testing and debugging are indispensable parts of the development cycle. Implementing thorough unit and integration tests not only helped us catch errors early but also ensured a more stable and seamless user experience. These lessons collectively contributed to a more professional and resilient final product.
+Finally, we learned that testing and debugging are indispensable parts of the development cycle. Implementing thorough unit and integration tests with Jest and Supertest not only helped us catch errors early, such as missing query parameter validations or transaction rollbacks, but also ensured a more stable and seamless user experience. These lessons collectively contributed to a more professional and resilient final product.
+
+These lessons collectively contributed to a more professional and resilient final product, equipping us with patterns, tools and processes that we will carry forward into future full‑stack projects.
+
+### 
 
 ### Concluding Remarks
 
