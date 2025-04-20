@@ -69,21 +69,17 @@ The product catalog supports all CRUD requirements, as defined in the course. Th
 
 Order processing is implemented as a five‑endpoint workflow. A new order is created with `POST /api/order`, where incoming items are validated for existence, availability (ACTIVE status), and sufficient stock. Stock quantities are decremented in the same transaction that writes the Order and corresponding OrderItem records. Users can fetch their own orders via `GET /api/order/user/:id`, complete with product snapshots (including name and imageURL). Administrators have a paginated, filterable overview of all orders at `GET /api/order`, with optional status filters and pagination metadata. Detailed order views are available at `GET /api/order/:id`, including user contact and full line‑item details, and order statuses can be updated through the lifecycle (PENDING → PROCESSING → SHIPPED → DELIVERED → CANCELLED) via the `PATCH /api/order/:id/status` endpoint.
 
+Generally speaking from the perspective of the users, the site begins with a fully responsive homepage. Users can view the paginated displayed product cards on the home page. Each card contains a thumbnail of the product, a title, a truncated description, a price and stock badge (" In Stock "/" Out of Stock "), and provides three operations: "View Details", "Add to Cart", and "Buy Now". The category drop-down menu is dynamically pulled from the back end or the mock interface, and can be jumped to the corresponding category list with one click. The search box supports real-time input and enter filtering, and automatically updates URL parameters. The user avatar on the right side of the navigation bar shows the login/registration entry when not logged in. When logged in, the user’s avatar icon reveals a contextual menu: customers see links to their Dashboard and Orders pages, admins see links to manage orders, products and users, and both roles can log out. The shopping cart icon will display the real-time product quantity badge. When hovered over, the shopping cart preview will be expanded, listing the product image, title, unit price × quantity, and providing links for “Go to Cart” or “Checkout” buttons. 
+
+The main cart page uses `CartListEntry` entries, each letting the user toggle selection via checkbox, adjust quantity with plus/minus buttons or direct input (bounded by stock), and remove items. When settling the bill, click Place Order”. The front end will verify the stock again and call the back-end interface. The inventory will be deducted in a transactional manner and an order will be generated. After a successful transaction, the order confirmation information will be returned and (in the development environment) an email will be simulated on the console. Users can view the list of historical and current orders through "My Orders", and click to enter the order details page to view the user information, product details, price, quantity and status of each order. When there is no permission access or the resource does not exist, ProtectedRoute will render the corresponding HttpError page to guide the user to log in, roll back or try again.
+
 ---
 
 ## 6. User Guide
 
-### Getting Started
+When users visit the page for the first time, they need to register first. Specifically, the user navigates to the Sign Up page, enters their first name, last name, address, email and password, and clicks “Register.” Upon success they land on the Login page automatically. Then they can enter the same email and password logs them in and redirects to the “Products” listing by default. At the top, the navbar brand “AnimeGoods” always links back to `/products`, while the “Products” menu reveals all categories, letting users jump directly to category‑specific lists. The search bar accepts free‑text queries and updates the URL’s `?search=` parameter in real time automatically; pressing Enter runs the search if not already on the products page. The right side of the navbar houses the user icon (opening login/register or account menus) and the cart icon (showing the count of items and a preview panel). 
 
-1. **Landing Page:**  
-   Users are welcomed by an intuitive homepage featuring the latest anime goods, promotional banners, and an easy-to-navigate menu.
-2. **Browsing Products:**  
-   - Use the search bar or filter options to find specific items.
-   - Click on any product to view detailed information including high-quality images, descriptions, pricing, and availability.
-3. **Shopping Cart & Checkout:**  
-   - Add desired products to your cart with a single click.
-   - Proceed to checkout for a simulated payment process.
-   - Confirm your order and receive an instant email notification.
+On the products page, cards are laid out in a responsive grid. Clicking “View Details” opens `/products/:id`, displaying a larger image, full description, current stock badge and the price formatted to two decimals. Users adjust the quantity with plus/minus buttons or by typing a number into a sanitized input field. Clicking “Add to Cart” updates the cart count in real time. To review selected items, the user clicks the cart icon and then “Go to Cart,” arriving at `/cart`. On the shopping cart page, each item is represented by a `CartListEntry` card showing a checkbox, image (or fallback icon), title, unit price, description snippet, and controls to change quantity or remove the item entirely. Users can select individual items or use a “Select All” control (in the header) to bulk‑remove or proceed to checkout. Pressing “Place Order” on the checkout page validates stock once more, submits the purchase to the backend, and upon success displays an order confirmation page. And during development, a console log simulating an email notification. Users can view details in "My Orders" section which linked from the user menu. It lists all past and current orders with status badges; clicking one shows detailed line items, quantities, unit prices and timestamps. If the user manually visits a protected admin page or their own user page without proper rights, the `HttpError` component gracefully displays 401/403/404/500 screens with clear messages and action buttons.
 
 
 ---
@@ -161,9 +157,6 @@ Each team member contributed significantly to the project's success, with respon
 
 ### Lessons Learned
 
-T### 10. Lessons Learned and Concluding Remarks
-
-#### Lessons Learned
 
 Throughout the project, our team acquired a range of valuable insights that will inform our future development practices. One of the key takeaways was the importance of modular development. By establishing clear and consistent interfaces between the frontend and backend, we were able to enhance the scalability of our application and simplify future maintenance.
 We also benefited greatly from adopting agile collaboration. A well-structured weekly plan and a clear division of responsibilities allowed us to maintain steady progress and consistently meet our milestones. This approach fostered accountability and improved team efficiency.
