@@ -44,11 +44,35 @@ By focusing exclusively on anime-related merchandise, the website aims to create
 
 The primary objectives of the project were as follows:
 
-- **Responsive and Intuitive Interface:** Develop an easy-to-navigate front end that offers detailed product descriptions, visuals, and seamless shopping cart functionality.
-- **Robust Backend Architecture:** Create a scalable backend using Express.js to handle user authentication, product management, order processing, and file handling efficiently.
-- **Optimized Data Management:** Design and implement a normalized PostgreSQL database for efficient storage of users, products, orders, and order items.
-- **Cloud Integration:** Incorporate cloud storage (e.g., AWS S3) for efficient image hosting and management.
-- **Enhanced User Experience:** Provide features like simulated payment processing, real-time order tracking, and automated notifications to improve overall service quality.
+- **Responsive and Intuitive Interface**
+
+  - Built as a single‑page React application with TypeScript, React Router and Shadcn/UI components styled via Tailwind CSS to ensure consistent, mobile‑first layouts.
+
+  - `ProductCard`, `ProductEntry` and `CartListEntry` components display images (with graceful fallback via `onError`), title, price and stock badge, while quantity controls and “Add to Cart” buttons update state through the `CartContext`.
+  - The global `Navbar` provides a searchable, category‑driven navigation menu (populated via `mockApi`), a real‑time cart preview badge, and a user menu that adapts to login status and role, all wrapped in a `Layout` component for seamless page transitions.
+  - Protected routes use a `ProtectedRoute` component to guard pages by authentication and role, rendering a unified `HttpError` page for 401/403/404/500 errors and preserving UX consistency.
+
+- **Robust Backend Architecture:** 
+  - Create a scalable backend using Express.js to handle user authentication, product management, order processing, and file handling efficiently.
+  - Modular Express.js server with separate routers for users (`src/routes/users.js`), products (`src/routes/product.js`) and orders (`src/routes/order.js`), each validating input via custom middleware (`validateUserInput`, `validateProductInput`, `validateOrderInput`) before invoking Prisma.
+  - Centralized database logic in `src/database.js` wraps all Prisma calls—`createUser`, `getAllProducts`, `createOrder`, etc.—to encapsulate error handling and maintain single responsibility.
+  - Request logging (`requestLogger`) and a global error handler catch and format exceptions uniformly, while middleware for query‑parameter parsing (`validateProductQueryParams`, `validateOrderQueryParams`) enforces pagination, sorting and filter rules at the API boundary.
+- **Optimized Data Management:** 
+  - PostgreSQL schema defined in `prisma/schema.prisma` models `User`, `Product`, `Order` and `OrderItem` entities with foreign‑key relations and two enums (`OrderStatus`, `ProductStatus`), ensuring referential integrity and clear order lifecycle.
+  - Key fields (email on `User`, status on `Order`/`Product`) are indexed or declared unique to speed lookups; all migrations and client generation are managed with `npx prisma migrate dev` and `prisma generate`.
+  - Atomic multi‑step operations (stock deduction + order creation) leverage `prisma.$transaction` to prevent partial writes, while normalized tables support flexible one‑to‑many and many‑to‑many relationships without redundant data.
+- **Cloud Integration:**
+  - Incorporate cloud storage -- AWS S3 for efficient image hosting and management. Product images are uploaded to and served from an AWS S3 bucket, with credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) and bucket name configured via environment variables.
+  - The `Product` model’s `imageURL` field stores S3 URLs; on the client, `<img>` tags reference these URLs directly, and the `ImageOff` icon appears if loading fails.
+  - This approach offloads static asset hosting from the Express server, improving performance and scalability while keeping the backend codebase focused on API logic.
+- **Enhanced User Experience:** 
+  - Provide features like simulated payment processing, real-time order tracking, and automated notifications to improve overall service quality.
+
+  - Simulated checkout flow on the frontend triggers a `POST /api/order` call; the backend validates stock availability, decrements inventory and creates `Order` and `OrderItem` records in one transaction.
+  - Users can track orders in real time via `GET /api/order/user/:id`, view detailed order pages (`GET /api/order/:id`), and admins can filter, paginate and update statuses (`PATCH /api/order/:id/status`) for end‑to‑end transparency.
+  - Although actual payment and email services are stubbed during development (console logs or mock APIs), the architecture supports easy integration of real gateways and notification services, setting the stage for production‑grade workflows.
+
+
 
 ---
 
