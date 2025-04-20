@@ -214,10 +214,15 @@ On the products page, cards are laid out in a responsive grid. Clicking “View 
 
 ## 8. Deployment Information
 
-### Live Deployment
+Our production deployment is split.
 
-- **URL:**  
-  The deployed application can be accessed at: [https://anime-ecommerce?????.com]
+The frontend of the project is deployed in Vercel. The build command is` npm run build `, and the output directory is` dist `(or` build `). The backend is deployed in Heroku and the package is built using Node.js. GitHub Actions automatically pipelines install dependencies, run linter checks and tests, then deploy the backend to Heroku via the Node.js buildpack and the frontend to Vercel using its Next.js integration when the 'main' branch is pushed. 
+
+Environment variables for production (`DATABASE_URL`, AWS credentials, S3 bucket name) are managed securely in each platform’s settings panel. The live application is accessible at 
+
+# [https://anime-ecommerce?????.com] 要改
+
+where performance is monitored through Heroku Metrics and automatic vulnerability scans run on each new deployment.
 
 
 ---
