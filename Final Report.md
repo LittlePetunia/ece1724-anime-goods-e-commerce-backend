@@ -87,124 +87,126 @@ On the products page, cards are laid out in a responsive grid. Clicking “View 
 
 ### Environment Setup & Configuration
 
-- - 1. **Prerequisites:**  
+1. **Prerequisites:**  
 
-       - Node.js installed on your machine.
-       - PostgreSQL database server up and running.
-       - AWS account with an S3 bucket configured (for product image hosting)  
+   - Node.js installed on your machine.
+   - PostgreSQL database server up and running.
+   - AWS account with an S3 bucket configured (for product image hosting)  
 
-    2. **Repository Setup:**  
+2. **Repository Setup:**  
 
-       - Clone the repository:  
+   - Clone the repository:  
 
-         ```bash
-         git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
-         cd anime-ecommerce
-         ```
+     ```bash
+     git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
+     cd anime-ecommerce
+     ```
 
-       - Install dependencies for both frontend and backend:
+   - Install dependencies for both frontend and backend:
 
-         ```bash
-         npm install
-         ```
+     ```bash
+     npm install
+     ```
 
-    3. **Environment Configuration**
+3. **Environment Configuration**
 
-       Create a `.env` file in the project root with the following content:
+   Create a `.env` file in the project root with the following content:
 
-       ```env
-       # PostgreSQL database URL
-       DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-       
-       # AWS S3 configuration
-       AWS_ACCESS_KEY_ID="your-access-key"
-       AWS_SECRET_ACCESS_KEY="your-secret-key"
-       S3_BUCKET_NAME="your-bucket-name"
-       ```
+   ```env
+   # PostgreSQL database URL
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+   
+   # AWS S3 configuration
+   AWS_ACCESS_KEY_ID="your-access-key"
+   AWS_SECRET_ACCESS_KEY="your-secret-key"
+   S3_BUCKET_NAME="your-bucket-name"
+   ```
 
-       For frontend (if in a separate directory), create `.env` as:
+   For frontend (if in a separate directory), create `.env` as:
 
-       ```env
-       VITE_API_BASE_URL="http://localhost:3000/api"
-       ```
+   ```env
+   VITE_API_BASE_URL="http://localhost:3000/api"
+   ```
 
-    4. **Database Initialization & Prisma Client Generation**
+4. **Database Initialization & Prisma Client Generation**
 
-       ```bash
-       npx prisma migrate dev --name init
-       npx prisma generate
-       # Optional: seed test data
-       node prisma/seed.js
-       ```
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   # Optional: seed test data
+   node prisma/seed.js
+   ```
 
-    5. **Running the Application Locally**
+5. **Running the Application Locally**
 
-       - **Frontend:**  
+   - **Frontend:**  
 
-         - Run the development server using:  
-
-           ```bash
-           npm run dev
-           ```
-
-         - The site will be available at [http://localhost:3000](http://localhost:3000).
-
-       - **Backend:**  
-
-         - Start the Express server with:  
-
-           ```bash
-           npm run start
-           ```
-
-    6. **Testing**
-
-       Run unit and integration tests using Jest and Supertest:
+     - Run the development server using:  
 
        ```bash
-       npm run test
+       npm run dev
        ```
 
-    7. **Build & Deployment**
+     - The site will be available at [http://localhost:3000](http://localhost:3000).
 
-       - **Build Frontend**
+   - **Backend:**  
+
+     - Start the Express server with:  
 
        ```bash
-       npm run build   # Output to dist/ or build/
+       npm run start
        ```
 
-       - **Deploy Backend**
-         - Configure environment variables as per `.env`
-       - **Deploy Frontend**
-         - Platforms: Vercel, Netlify
-         - Build command: `npm run build`
-         - Output directory: `dist/` or `build/`
+6. **Testing**
 
-    8. **CI/CD (Optional)**
+   Run unit and integration tests using Jest and Supertest:
 
-       Set up GitHub Actions for automatic testing and deployment on every push:
+   ```bash
+   npm run test
+   ```
 
-       ```yaml
-       # .github/workflows/ci.yml
-       on: [push]
-       jobs:
-         build-and-test:
-           runs-on: ubuntu-latest
-           steps:
-             - uses: actions/checkout@v3
-             - uses: actions/setup-node@v3
-               with:
-                 node-version: '18'
-             - run: npm ci
-             - run: npm run test
-       
-         deploy:
-           needs: build-and-test
-           runs-on: ubuntu-latest
-           steps:
-             - name: Deploy to Vercel/Heroku/Netlify
-               run: echo "Add your deployment steps here"
-       ```
+7. **Build & Deployment**
+
+   - **Build Frontend**
+
+   ```bash
+   npm run build   # Output to dist/ or build/
+   ```
+
+   - **Deploy Backend**
+     - Configure environment variables as per `.env`
+   - **Deploy Frontend**
+     - Platforms: Vercel, Netlify
+     - Build command: `npm run build`
+     - Output directory: `dist/` or `build/`
+
+8. **CI/CD (Optional)**
+
+   Set up GitHub Actions for automatic testing and deployment on every push:
+
+   ```yaml
+   # .github/workflows/ci.yml
+   on: [push]
+   jobs:
+     build-and-test:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         - uses: actions/setup-node@v3
+           with:
+             node-version: '18'
+         - run: npm ci
+         - run: npm run test
+   
+     deploy:
+       needs: build-and-test
+       runs-on: ubuntu-latest
+       steps:
+         - name: Deploy to Vercel/Heroku/Netlify
+           run: echo "Add your deployment steps here"
+   ```
+
+   
 
        
   
