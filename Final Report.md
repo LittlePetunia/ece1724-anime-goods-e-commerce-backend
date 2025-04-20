@@ -39,7 +39,7 @@ By focusing exclusively on anime-related merchandise, the website aims to create
 The primary goals of this project were defined to guide our implementation and measure its success:
 
 - **Deliver a Responsive and Intuitive Interface**
-   We set out to create a frontend that works seamlessly on any device, guiding users from browsing to checkout without friction. By building a single‑page React application in TypeScript, leveraging React Router for fluid navigation and Tailwind‑styled Shadcn/UI components, we ensure consistent and mobile first layouts. We aimed to present detailed product information, including images, descriptions, prices and stock badges with graceful fallback via `onError` through reusable components, such as `ProductCard`, `ProductEntry`, `CartListEntry`. This objective ensured that users could find, view and purchase items with minimal clicks, and enjoy real‑time updates via our global `Navbar` and `CartContext`.
+  We set out to create a frontend that works seamlessly on any device, guiding users from browsing to checkout without friction. By building a single‑page React application in TypeScript, leveraging React Router for fluid navigation and Tailwind‑styled Shadcn/UI components, we ensure consistent and mobile first layouts. We aimed to present detailed product information, including images, descriptions, prices and stock badges with graceful fallback via `onError` through reusable components, such as `ProductCard`, `ProductEntry`, `CartListEntry`. This objective ensured that users could find, view and purchase items with minimal clicks, and enjoy real‑time updates via our global `Navbar` and `CartContext`.
 
 - **Establish a Robust and Modular Backend Architecture**
 
@@ -73,7 +73,7 @@ Our front-end implementation adopts React and TypeScript to build a single-page 
 
 Figure 2\. Project Frontend Structure
 
-For the backend, we use Node.js with Express.js to provide RESTful APIs under the `/api` namespace. All database access is handled via Prisma ORM (`@prisma/client`). The schema is defined in `prisma/schema.prisma` and includes four main entities — User, Product, Order, and OrderItem — as well as two enums: OrderStatus and ProductStatus. The schema is configured with auto-incrementing primary keys, unique indexes, relationship mappings, and automatic timestamps. PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas. To support file handling, product images are stored in an AWS S3 bucket, with credentials and bucket name supplied via environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`). In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration and deployment, GitHub Actions run our test suite and, on successful builds, deploy the backend to Heroku and the frontend to Vercel whenever changes are merged into `main`.
+For the backend, we use Node.js with Express.js to provide RESTful APIs under the `/api` namespace. All database access is handled via Prisma ORM (`@prisma/client`). The schema is defined in `prisma/schema.prisma` and includes four main entities — User, Product, Order, and OrderItem — as well as two enums: OrderStatus and ProductStatus. The schema is configured with auto-incrementing primary keys, unique indexes, relationship mappings, and automatic timestamps. PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas. To support file handling, product images are stored in an AWS S3 bucket, with credentials and bucket name supplied via environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`). In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration, GitHub Actions are configured to run our test suite automatically on every push and pull request. Although deployment steps were planned (e.g., deploying the backend to Heroku and the frontend to Vercel), the application was not ultimately deployed.
 
 ![Figure 3](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure3.png?raw=true)
 
@@ -149,14 +149,13 @@ Figure 8\. Frontend User
    - Clicking the user icon in the navbar reveals options based on authentication status. If unauthenticated, users can choose Login or Register. Register opens the form that sends a POST request to `/api/user`, after which you are automatically logged in. Login submits credentials via POST `/api/user/login` and, on success, takes you to your Profile View.
    - On your Profile page users can update their information by submitting a PUT request to `/api/user/:id`, cancel their account by confirming a DELETE request to the same endpoint, or log out, which clears their session and returns them to the homepage.
 6. **Admin Console**
-    *(only visible to users with admin rights)*
+   *(only visible to users with admin rights)*
    - For users with admin rights, additional options appear in the user menu. 
    - “Manage Users” opens the User List View and fetches all customers using GET `/api/user/allCustomers`. 
    - “Manage Products” leads to the Product List View, which loads via GET `/api/product` and includes features like search, status filtering, pagination, and sorting.
 7. Error Handling
    - If the user manually visits a protected admin page or their own user page without proper rights, the `HttpError` component gracefully displays 401/403/404/500 screens with clear messages and action buttons.
    - ProtectedRoute ensures that only authorized users can access admin views or specific account pages.
-   
 
 
 ---
@@ -243,67 +242,10 @@ Figure 8\. Frontend User
    npm run test
    ```
 
-7. **Build & Deployment**
-
-   - **Build Frontend**
-
-   ```bash
-   npm run build   # Output to dist/ or build/
-   ```
-
-   - **Deploy Backend**
-     - Configure environment variables as per `.env`
-   - **Deploy Frontend**
-     - Platforms: Vercel, Netlify
-     - Build command: `npm run build`
-     - Output directory: `dist/` or `build/`
-
-8. **CI/CD (Optional)**
-
-   Set up GitHub Actions for automatic testing and deployment on every push:
-
-   ```yaml
-   # .github/workflows/ci.yml
-   on: [push]
-   jobs:
-     build-and-test:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v3
-         - uses: actions/setup-node@v3
-           with:
-             node-version: '18'
-         - run: npm ci
-         - run: npm run test
-   
-     deploy:
-       needs: build-and-test
-       runs-on: ubuntu-latest
-       steps:
-         - name: Deploy to Vercel/Heroku/Netlify
-           run: echo "Add your deployment steps here"
-   ```
-
-   
 
 ---
 
-## 8. Deployment Information
-
-Our production deployment is split.
-
-The frontend of the project is deployed in Vercel. The build command is` npm run build `, and the output directory is` dist `(or` build `). The backend is deployed in Heroku and the package is built using Node.js. GitHub Actions automatically pipelines install dependencies, run linter checks and tests, then deploy the backend to Heroku via the Node.js buildpack and the frontend to Vercel using its Next.js integration when the 'main' branch is pushed. 
-
-Environment variables for production (`DATABASE_URL`, AWS credentials, S3 bucket name) are managed securely in each platform’s settings panel. The live application is accessible at 
-
-# [https://anime-ecommerce?????.com] 要改
-
-where performance is monitored through Heroku Metrics and automatic vulnerability scans run on each new deployment.
-
-
----
-
-## 9. Individual Contributions
+## 8. Individual Contributions
 
 Each team member contributed significantly to the project's success, with responsibilities clearly aligned with their areas of expertise. The contributions are summarized below:
 
@@ -332,7 +274,6 @@ Table 1\. Responsibilities for each team member
 
 ### Lessons Learned
 
-
 Throughout the project, our team acquired a range of valuable insights that will inform our future development practices. One of the key takeaways was the importance of modular development. By establishing clear and consistent interfaces between the frontend and backend, defining separate Express routers for users, products and orders in `src/routes/`, centralizing all Prisma calls in `src/database.js`, and encapsulating shared logic in middleware, we were able to enhance the scalability of our application and simplify future maintenance.
 We also benefited greatly from adopting agile collaboration. A well-structured weekly plan and a clear division of responsibilities with tasks tracked in our project board and daily stand‑up check‑ins, gave us clear short‑term goals and allowed us to maintain steady progress and consistently meet our milestones. This approach fostered accountability and improved team efficiency.
 In addition, working with cloud integration and security deepened our appreciation for the complexities of real-world application deployment. Incorporating cloud storage solutions and safeguarding user data pushed us to adopt industry best practices and consider system robustness from both a technical and ethical standpoint.
@@ -340,11 +281,9 @@ Finally, we learned that testing and debugging are indispensable parts of the de
 
 These lessons collectively contributed to a more professional and resilient final product, equipping us with patterns, tools and processes that we will carry forward into future full‑stack projects.
 
-### 
-
 ### Concluding Remarks
 
-The project has successfully delivered a dedicated and professional anime goods e-commerce platform. Our final product not only meets the course requirements but also delivers a robust, scalable, and user-friendly solution that addresses a key market need. The hands-on experience with a full-stack development process—from planning and architecture design to testing and deployment—has significantly enhanced our technical and collaborative skills.
+The project has successfully delivered a dedicated and professional anime goods e-commerce platform. Our final product not only meets the course requirements but also delivers a robust, scalable, and user-friendly solution that addresses a key market need. The hands-on experience with a full-stack development process, from planning and architecture design to testing, has significantly enhanced our technical and collaborative skills.
 
 We would like to extend our gratitude to our instructors and TAs for their support and guidance throughout the project lifecycle. For some members of our team, this was the very first time in our lives that we had fully engaged with web development. At the beginning, we had no concept of HTTP requests, API design, or database structures, but now we can collaborate efficiently and build integrated frontend-backend systems. This four-month learning journey greatly broadened our engineering perspective and laid a solid foundation for our technical skill set. Especially starting from scratch, the course’s structured phases—including design documentation, project proposal, midterm presentation, and final submission—gradually immersed us in real-world development scenarios, helping us grow rapidly through constant trial and error.
 
@@ -359,6 +298,8 @@ Looking back on the entire course, it didn’t just teach us how to “write cod
 During the final stage of the course, when we saw the shopping cart updating quantities in real-time, or the interface displaying different menus based on user permissions… the sense of accomplishment at that moment was beyond words. Behind these features were countless failed debugging attempts. They were the result of our late-night remote collaborations. And they reflected the continuous refinement of our code logic and system design.
 
 We believe that this course experience will serve as a critical starting point on our path toward a career in software engineering. It not only taught us “how to build a project,” but also “how to become better developers.” Whether in industry, building large-scale systems, or in academia, pursuing deeper technical research, the hands-on experience and problem-solving mindset this course gave us will benefit us for a long time to come.
+
+Looking ahead, we are excited to further refine the platform by adding additional features such as advanced recommendation algorithms, and we plan to expand it to handle an even broader range of products. This project has sparked our interest in exploring further into e-commerce system optimization and user experience design.
 
 Lastly, we would like to once again thank the professor and TAs for their thoughtful guidance and wholehearted dedication throughout this semester. Thank you for building a platform that was both challenging and full of possibilities. And thank you for consistently supporting, encouraging, and believing in every one of us. We hope to collaborate again in future courses, projects, or research, and continue growing together.
 
