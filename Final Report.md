@@ -7,18 +7,17 @@
 - **Astra Yu**  
   *Student Number:* 1011466423  
   *Email:* miing.yu@mail.utoronto.ca
-
 - **Chuyue Zhang**  
   *Student Number:* 1005728303  
   *Email:* zhangchuyue.zhang@mail.utoronto.ca
-
 - **Qiao Song**  
-  *Student Number:* 1000920355
+  *Student Number:* 1000920355  
   *Email:* qiao.song@mail.utoronto.ca
-
 - **Yushun Tang**  
   *Student Number:* 1011561962  
   *Email:* yushun.tang@mail.utoronto.ca
+
+
 
 
 
