@@ -42,35 +42,28 @@ By focusing exclusively on anime-related merchandise, the website aims to create
 
 ## 3. Objectives
 
-The primary objectives of the project were as follows:
+The primary goals of this project were defined to guide our implementation and measure its success:
 
-- **Responsive and Intuitive Interface**
+- **Deliver a Responsive and Intuitive Interface**
+   We set out to create a frontend that works seamlessly on any device, guiding users from browsing to checkout without friction. By building a single‑page React application in TypeScript, leveraging React Router for fluid navigation and Tailwind‑styled Shadcn/UI components, we ensure consistent and mobile first layouts. We aimed to present detailed product information, including images, descriptions, prices and stock badges with graceful fallback via `onError` through reusable components, such as `ProductCard`, `ProductEntry`, `CartListEntry`. This objective ensured that users could find, view and purchase items with minimal clicks, and enjoy real‑time updates via our global `Navbar` and `CartContext`.
 
-  - Built as a single‑page React application with TypeScript, React Router and Shadcn/UI components styled via Tailwind CSS to ensure consistent, mobile‑first layouts.
+- **Establish a Robust and Modular Backend Architecture**
 
-  - `ProductCard`, `ProductEntry` and `CartListEntry` components display images (with graceful fallback via `onError`), title, price and stock badge, while quantity controls and “Add to Cart” buttons update state through the `CartContext`.
-  - The global `Navbar` provides a searchable, category‑driven navigation menu (populated via `mockApi`), a real‑time cart preview badge, and a user menu that adapts to login status and role, all wrapped in a `Layout` component for seamless page transitions.
-  - Protected routes use a `ProtectedRoute` component to guard pages by authentication and role, rendering a unified `HttpError` page for 401/403/404/500 errors and preserving UX consistency.
+  Our aim was to construct an Express.js server architecture that could scale and evolve to handle user authentication, product management, order processing, and file handling efficiently. We divided routes into clear modules users, including (`src/routes/users.js`), products (`src/routes/product.js`) and orders (`src/routes/order.js`), enforced input validation through custom middleware (`validateUserInput`, `validateProductInput`, `validateOrderInput`) before invoking Prisma, and centralized all database operations in `src/database.js`, wraping all Prisma calls such as`createUser`, `getAllProducts`, `createOrder`, and so on, to encapsulate error handling and maintain single responsibility. This separation of concerns—combined with request logging and a global error handler, ensured maintainability, predictable performance and a solid foundation for future feature growth.
 
-- **Robust Backend Architecture:** 
-  - Create a scalable backend using Express.js to handle user authentication, product management, order processing, and file handling efficiently.
-  - Modular Express.js server with separate routers for users (`src/routes/users.js`), products (`src/routes/product.js`) and orders (`src/routes/order.js`), each validating input via custom middleware (`validateUserInput`, `validateProductInput`, `validateOrderInput`) before invoking Prisma.
-  - Centralized database logic in `src/database.js` wraps all Prisma calls—`createUser`, `getAllProducts`, `createOrder`, etc.—to encapsulate error handling and maintain single responsibility.
-  - Request logging (`requestLogger`) and a global error handler catch and format exceptions uniformly, while middleware for query‑parameter parsing (`validateProductQueryParams`, `validateOrderQueryParams`) enforces pagination, sorting and filter rules at the API boundary.
-- **Optimized Data Management:** 
-  - PostgreSQL schema defined in `prisma/schema.prisma` models `User`, `Product`, `Order` and `OrderItem` entities with foreign‑key relations and two enums (`OrderStatus`, `ProductStatus`), ensuring referential integrity and clear order lifecycle.
-  - Key fields (email on `User`, status on `Order`/`Product`) are indexed or declared unique to speed lookups; all migrations and client generation are managed with `npx prisma migrate dev` and `prisma generate`.
-  - Atomic multi‑step operations (stock deduction + order creation) leverage `prisma.$transaction` to prevent partial writes, while normalized tables support flexible one‑to‑many and many‑to‑many relationships without redundant data.
-- **Cloud Integration:**
-  - Incorporate cloud storage -- AWS S3 for efficient image hosting and management. Product images are uploaded to and served from an AWS S3 bucket, with credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) and bucket name configured via environment variables.
-  - The `Product` model’s `imageURL` field stores S3 URLs; on the client, `<img>` tags reference these URLs directly, and the `ImageOff` icon appears if loading fails.
-  - This approach offloads static asset hosting from the Express server, improving performance and scalability while keeping the backend codebase focused on API logic.
-- **Enhanced User Experience:** 
-  - Provide features like simulated payment processing, real-time order tracking, and automated notifications to improve overall service quality.
+- **Optimize Data Integrity and Performance**
 
-  - Simulated checkout flow on the frontend triggers a `POST /api/order` call; the backend validates stock availability, decrements inventory and creates `Order` and `OrderItem` records in one transaction.
-  - Users can track orders in real time via `GET /api/order/user/:id`, view detailed order pages (`GET /api/order/:id`), and admins can filter, paginate and update statuses (`PATCH /api/order/:id/status`) for end‑to‑end transparency.
-  - Although actual payment and email services are stubbed during development (console logs or mock APIs), the architecture supports easy integration of real gateways and notification services, setting the stage for production‑grade workflows.
+  To guarantee reliable storage, fast queries, referential integrity and clear order lifecycle, we designed a normalized PostgreSQL schema defined in `prisma/schema.prisma` modeling `User`, `Product`, `Order` and `OrderItem` entities with appropriate relations and enums (`OrderStatus`, `ProductStatus`). We indexed critical fields, such as email on `User`, status on `Order`/`Product`, and managed all migrations and client generation with ``npx prisma migrate dev` and `prisma generate`. By leveraging `prisma.$transaction` for atomic multi‑step operations such as stock deduction and order creation, we prevent partial writes and preserve referential integrity under high concurrency while normalized tables support flexible one‑to‑many and many‑to‑many relationships without redundant data.
+
+- **Leverage Cloud Storage for Scalability**
+
+  Recognizing that images represent the bulk of static assets, we integrated AWS S3 to offload hosting and accelerate delivery. Product images are uploaded to S3 (configured via `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`), and served via their URLs in the `imageURL` field. This approach allows our Express API to remain focused on business logic, improves load times, and ensures the system can scale without burdening the backend.
+
+- **Provide an End‑to‑End, Production‑Ready Experience**
+
+  To enhance users' experience, we provide features like simulated payment processing, real-time order tracking, and automated notifications to improve overall service quality. Beyond simple CRUD, our implementation simulates a full checkout workflow: the frontend invokes `POST /api/order`, the backend validates stock, decrements inventory and writes `Order` and `OrderItem` records within a transaction, and returns confirmations. Users can immediately track their orders in real time via (`GET /api/order/user/:id`), view detailed order pages via (`GET /api/order/:id`), and admins can filter, paginate and update statuses via (`PATCH /api/order/:id/status`). Although payment and email notifications are stubbed during development, our clean API design and pluggable architecture ensure that integrating real gateways or notification services will be straightforward, laying the groundwork for a fully production‑grade platform.
+
+
 
 
 
