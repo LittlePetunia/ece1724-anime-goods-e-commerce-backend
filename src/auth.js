@@ -120,25 +120,30 @@ const isUser = (req, res, next) => {
 
 /**
  * Level 3: Specific user or admin - owner or admin can access
- * @param {(req: any) => number} getUserId - Callback function to extract userId from req
+ * @param {(req: any) => number|Promise<number>} getUserId - Callback function to extract userId from req
  * @returns {(req: any, res: any, next: any) => void} Middleware function
  */
 const isSpecificUserOrAdmin = (getUserId) => {
     return (req, res, next) => {
-        verifyToken(req, res, () => {
+        verifyToken(req, res, async () => {
             if (!req.user) {
                 return res.status(401).json({ error: 'Authentication required' });
             }
 
-            const requestedUserId = getUserId(req);
-            if (requestedUserId === undefined || requestedUserId === null) {
-                return res.status(400).json({ error: 'User ID not found in request' });
+            try {
+                const requestedUserId = await Promise.resolve(getUserId(req));
+                if (requestedUserId === undefined || requestedUserId === null) {
+                    return res.status(400).json({ error: 'User ID not found in request' });
+                }
+                console.log(`requestedUserId = ${requestedUserId}, token UserID = ${req.user.id}`);
+                if (req.user.id !== requestedUserId && !req.user.isAdmin) {
+                    return res.status(403).json({ error: 'Access denied: Not the resource owner or admin' });
+                }
+                next();
+            } catch (error) {
+                console.error('Error in isSpecificUserOrAdmin middleware:', error);
+                return res.status(500).json({ error: 'Internal server error' });
             }
-
-            if (req.user.id !== requestedUserId && !req.user.isAdmin) {
-                return res.status(403).json({ error: 'Access denied: Not the resource owner or admin' });
-            }
-            next();
         });
     };
 };
