@@ -65,15 +65,15 @@ Figure 1\. Infrastructure Diagram
 
 ## 4. Technical Stack
 
-We opted for Express.js for our backend architecture and React (Tailwind CSS and Shadcn/UI)-based frontend UI developed with Tailwind CSS and Shadcn/UI) in a clear “frontend–backend” split.
+We opted for Express.js for our backend architecture and React-based frontend UI developed with Tailwind CSS and Shadcn/UI in a clear “frontend–backend” split.
 
-Our front-end implementation adopts React and TypeScript to build a single-page application, uses React Router to manage routes, and Tailwind CSS in combination with Shadcn/UI to achieve a consistent visual style and responsive layout. The application status is managed through two sets of Contexts: AuthContext is responsible for login, logout and role determination, and persists the token and user information to localStorage; CartContext is responsible for the addition, deletion, quantity and selection status of items in the shopping cart, and updates the total number of items in real time in the navigation bar. The entire page is wrapped by the Layout component, which includes the navigation bar (brand, category dropdown, search box, user menu, and shopping cart preview), the Outlet block, and the container and footer. All error states (401, 403, 404, 500) are uniformly rendered through the HttpError component, making ICONS, titles, descriptions, and operation buttons clear at a glance, ensuring a good user experience when permissions or resources are abnormal. The product list uses the ProductCard and ProductEntry components to present thumbnails, inventory badges and operation buttons; The shopping cart page displays ICONS for increasing or decreasing quantities, checking, and deleting through the CartListEntry component, and falls back to display placeholder ICONS when image loading fails. In the development process, Vite (or Create React App) is used to implement hot reloading. The code quality is guaranteed by ESLint/Prettier, and component Testing is accomplished by React Testing Library and Jest.
+Our front-end implementation adopts React and TypeScript to build a single-page application, uses React Router to manage routes, and Tailwind CSS in combination with Shadcn/UI to achieve a consistent visual style and responsive layout. The application status is managed through sets of Contexts: AuthContext is responsible for login, logout and role determination, and persists the token and user information to localStorage; CartContext is responsible for the addition, deletion, quantity and selection status of items in the shopping cart, and updates the total number of items in real time in the navigation bar; ThemeContext is responsible for the light/dark theme state. The entire page is wrapped by the Layout component, which includes the navigation bar (product category dropdown, search box, user menu, shopping cart preview, and light/dark mode selection button), the Outlet block as the container of pages, and the footer. All error states (401, 403, 404, 500) are uniformly rendered through the HttpError component, making ICONS, titles, descriptions, and operation buttons clear at a glance, ensuring a good user experience when permissions or resources are abnormal. The product list uses the ProductCard and ProductEntry components to present thumbnails, inventory badges and operation buttons; The shopping cart page displays ICONS for increasing or decreasing quantities, checking, and deleting through the CartListEntry component, and falls back to display placeholder ICONS when image loading fails. For better experience of administrator management, product images are stored in an AWS S3 bucket and a dialog window for quick uploading is implemented in product management page. Additionally, XLSX library is used for Excel file handling, allowing administrators to import/export products and user accounts conveniently. In the development process, Vite is used to implement hot reloading. The code quality is guaranteed by ESLint/Prettier, and component Testing is accomplished by React Testing Library and Jest.
 
 ![Figure 2](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure2.png?raw=true)
 
 Figure 2\. Project Frontend Structure
 
-For the backend, we use Node.js with Express.js to provide RESTful APIs under the `/api` namespace. All database access is handled via Prisma ORM (`@prisma/client`). The schema is defined in `prisma/schema.prisma` and includes four main entities — User, Product, Order, and OrderItem — as well as two enums: OrderStatus and ProductStatus. The schema is configured with auto-incrementing primary keys, unique indexes, relationship mappings, and automatic timestamps. PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas. To support file handling, product images are stored in an AWS S3 bucket, with credentials and bucket name supplied via environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`). In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration, GitHub Actions are configured to run our test suite automatically on every push and pull request. Although deployment steps were planned (e.g., deploying the backend to Heroku and the frontend to Vercel), the application was not ultimately deployed.
+For the backend, we use Node.js with Express.js to provide RESTful APIs under the `/api` namespace. All database access is handled via Prisma ORM (`@prisma/client`). The schema is defined in `prisma/schema.prisma` and includes four main entities — User, Product, Order, and OrderItem — as well as two enums: OrderStatus and ProductStatus. The schema is configured with auto-incrementing primary keys, unique indexes, relationship mappings, and automatic timestamps. PostgreSQL is our primary choice for the database due to its stability along with its powerful support towards transactions. For guaranteeing atomicity, we encapsulate multi‐step actions like stock deduction of a product and creating the corresponding order records within a `prisma.$transaction` calls. All database operations are captured within `src/database.js` where all queries, error handling and connection management are consolidated together. In order to validate and sanitize the incoming requests, we implemented a collection of Express middlewares that are placed in `src/middleware.js` which include request logging, input validation checking users, products, orders, and parsing of query-parameter based JSON schemas. In development, we use `dotenv` to load these variables along with `DATABASE_URL` for the PostgreSQL connection. Code quality is enforced through ESLint and Prettier, while Jest and Supertest provide unit and integration tests for our API endpoints. During local development, `nodemon` watches for file changes and restarts the server automatically. For continuous integration, GitHub Actions are configured to run our test suite automatically on every push and pull request. Although deployment steps were planned (e.g., deploying the backend to Heroku and the frontend to Vercel), the application was not ultimately deployed.
 
 ![Figure 3](https://github.com/sudoytang/markdown-image-host/blob/main/ece1724s2_2025w/proposal/figure3.png?raw=true)
 
@@ -87,13 +87,13 @@ Figure 4\. Project Database Structure
 
 ## 5. Features
 
-Our application features a complete workflow for user management which includes account creation and secure logins. In the current version, when a new user registers through the application interface with `POST /api/user`, their email is having uniqueness verified at the database level. Registration is also backed by client-side checks and a `useAuth()` hook. Login is handled through a modal triggered by the user icon, sending a request to `/api/user/login` which returns a JWT and user data to be stored in context and localStorage. For now, passwords are stored without hashing, though our future work will include migrating to securely hashed passwords. Protected actions such as “Buy Now” and “Place Order” require authentication, enforced via a `<CheckAuth>` component that either proceeds or opens the AuthModal, resuming the action upon successful login.  Logout clears all authentication data and resets the user state. APIs are validated through custom Express middleware with Zod schemas, ensuring type and format correctness. Registered users can update or delete their profiles with `PUT /api/user/:id` and `DELETE /api/user/:id`, respectively. A custom middleware ensures all requests comply with correct data types and formats.
+Our application features a complete workflow for user management which includes account creation and secure logins. In the current version, when a new user registers through the application interface with `POST /api/user`, their email is having uniqueness verified at the database level. Registration is also backed by client-side checks and a `useAuth()` hook. JSON Web Token (aka. JWT) is used for **authentication and authorization** in our project, because it offers a simple implementation, enables stateless authentication on the server side. Additionally, JWTs are compact, URL-safe, and can carry custom claims, making them a flexible solution for securely transmitting information between parties. Login is handled through a modal triggered by the user icon, sending a request to `/api/user/login` which returns a JWT and user data to be stored in context and localStorage. For now, passwords are stored without hashing, though our future work will include migrating to securely hashed passwords. In frontend, protected pages such as admin management pages and user-specific pages require authentication, enforced via a `<ProtectedRoute>` component that checks the authentication and access level of the current user. Logout clears all authentication data and resets the user state. In backend, API calls include the JWT in the Authorization header using the Bearer schema, and are validated through custom Express middleware, ensuring authentication and access level correctness. Registered users can update or delete their profiles with `PUT /api/user/:id` and `DELETE /api/user/:id`, respectively. A custom middleware ensures all requests comply with correct data types and formats.
 
 Our application also provides a robust product catalog supports all CRUD requirements, as defined in the course. Through `POST /api/product`, administrators are able to create new products by supplying attributes such as name, brand, description, price, category, stock, status, and imageURL. Products can be retrieved individually using `GET /api/product/:id`, while the entire catalog can be accessed via `GET /api/product`, allowing for searching in a case insensitive manner over the name, brand, and description. The `/products` page supports infinite scrolling, filtering by category and price, and search term debouncing. All parameters are synced with the URL, triggering queries to `/api/product`, and large lists are rendered efficiently using virtualization with react-window. A custom middleware parses and validates the supplied pagination parameters, such as`skip` and `take`, with sorting by any indexed field, including but not limited to, price, stock, and creation date. Updating is done through `PUT /api/product/:id`, and deletion is done using `DELETE /api/product/:id`. The deletion process ensures referential integrity by preventing the removal of products associated with existing orders, suggesting that they be marked as DISCONTINUED instead.
 ![Product](https://github.com/user-attachments/assets/328eb6eb-67a9-4c43-b394-2b182fe7b333)
 Figure 5\. Product
 
-Shopping cart operations are managed through a global `CartContext` and reducer, supporting product additions, updates, and removals. Users can interact with the cart from the product list or detail pages by clicking the cart icon, opening a preview with product images, names, unit prices, and quantities. The preview offers links to “Go to Cart” or “Checkout”. From the main `/cart` page, users can adjust product quantities using plus/minus buttons or direct input, remove individual products, clear the entire cart, or select items using checkboxes. Quantity inputs are bounded by stock, and the cart provides feedback when limits are exceeded. Cart functionality includes batch selection and a secure order placement flow, wrapped in `<CheckAuth>` to ensure only authenticated users can proceed. If users are not logged in, they are prompted to register or sign in before continuing.
+Shopping cart operations are managed through a global `CartContext` and reducer, supporting product additions, updates, and removals. Users can interact with the cart from the product list or detail pages by hovering the cart icon, opening a preview with product images, names, unit prices, and quantities. The preview offers links to “Go to Cart” or “Checkout”. From the main `/cart` page, users can adjust product quantities using plus/minus buttons or direct input, remove individual products, clear the entire cart, or select items using checkboxes. Quantity inputs are bounded by stock, and the cart provides feedback when limits are exceeded. Cart functionality includes batch selection and a secure order placement flow. While viewing and managing the cart does not require authentication, the checkout process is wrapped in `<ProtectedRoute>` to ensure only authenticated users can proceed. If users are not logged in, they are prompted to register or sign in before continuing.
 ![Frontend Shopping Cart](https://github.com/user-attachments/assets/aec635df-d8d0-4ee7-8d85-b4fc1474b634)
 Figure 6\. Shopping Cart
 
@@ -101,11 +101,11 @@ Order processing is implemented as a transactional five‑endpoint workflow. A n
 ![Order](https://github.com/user-attachments/assets/33860cad-1307-45b2-b7ff-8802cd2c205c)
 Figure 7\. Order
 
-Generally speaking from the perspective of the users, the site begins with a fully responsive homepage. Users can view the paginated displayed product cards on the home page. Each card contains a thumbnail of the product, a title, a truncated description, a price and stock badge (" In Stock "/" Out of Stock "), and provides three operations: "View Details", "Add to Cart", and "Buy Now". The category drop-down menu is dynamically pulled from the back end or the mock interface, and can be jumped to the corresponding category list with one click. The search box supports real-time input and enter filtering, and automatically updates URL parameters. The user avatar on the right side of the navigation bar shows the login/registration entry when not logged in. When logged in, the user’s avatar icon reveals a contextual menu: customers see links to their Dashboard and Orders pages, admins see links to manage orders, products and users, and both roles can log out. The shopping cart icon displays a real-time badge for product quantity and expands on hover to preview current items. The order confirmation screen shows detailed billing info, and users can navigate to "My Orders" to track past and current orders.
+Generally speaking from the perspective of the users, the site begins with a fully responsive homepage. Users can view the displayed product cards or entries on the home page. Each card contains a thumbnail of the product, a title, a truncated description, a price and stock badge (“ In Stock ”/“ Out of Stock ”), and provides two operations: “View Details”, “Add to Cart”. The category drop-down menu in the navigation bar can be used to jumped to the corresponding category list with one click. The search box supports real-time input and enter filtering, and automatically updates URL parameters. The user icon on the right side of the navigation bar shows the login/registration entry when not logged in. When logged in, the user icon reveals a contextual menu: customers see links to their Dashboard and Orders pages, admins see links to manage orders, products and users, and both roles can log out. The shopping cart icon displays a real-time badge for product quantity and expands on hover to preview current items. The order confirmation screen shows detailed billing info, and users can navigate to “My Orders” to track past and current orders.
 
-The admin console is integrated into the application, allowing privileged users to manage customers, products, and orders. Admins can view and edit user data inline, sending updates via PUT or DELETE requests. Product management in the admin panel mirrors the customer-facing catalog but includes features such as toggling product status (e.g., DISCONTINUED). Admins can also access detailed order views and make status updates through modal interfaces, streamlining the management workflow.
+The admin console is integrated into the application, allowing privileged users to manage customers, products, and orders. The manage (users, products, orders) interfaces are all built as paginated data tables with enhanced functionality. Each table includes checkboxes on the left side for bulk operations, allowing administrators to select multiple items for batch actions. On the right side, each row has action buttons for specific operations on individual items. Admins can view and edit user data inline, sending updates via PUT or DELETE requests. Product management in the admin panel mirrors the customer-facing catalog but includes features such as toggling product status (e.g., DISCONTINUED). Admins can also access detailed order views and make status updates through modal interfaces, streamlining the management workflow. All three tables support exporting data to Excel format for offline analysis and reporting. Additionally, the users and products tables support importing data from Excel files, with built-in validation to ensure data correctness and integrity. The product management interface includes a special dialog window for adding or editing products that supports drag-and-drop image uploads directly to AWS S3, streamlining the product image management process.
 
-Finally, access control and error handling are enforced throughout the application. Protected routes validate user roles and render appropriate error components, such as `<HttpError>` for unauthorized or missing resources. Axios interceptors catch backend errors and display user-friendly toasts, while a global `<ErrorBoundary>` ensures graceful degradation during render failures, offering recovery options like reload buttons. Unauthorized access attempts redirect users to the login interface, helping maintain a smooth and secure experience.
+Finally, error handling are enforced throughout the application. Protected routes validate user roles and render appropriate error components `<HttpError>` with specific error code, for unauthorized or missing resources. shadcn/ui component Sonner catches backend errors and display user-friendly toasts, while a global `<Toaster>` with correct error and rejecton handler ensures graceful degradation during failures.
 
 
 ![Frontend User](https://github.com/user-attachments/assets/d9046444-c6bf-4edd-b935-f61f615ab04c)
@@ -119,12 +119,12 @@ Figure 8\. Frontend User
 ## 6. User Guide
 
 1. Registration and Login
-   - When users visit the page for the first time, they need to register first. Specifically, the user navigates to the Sign Up page, enters their first name, last name, address, email and password, and clicks “Register.” 
-   - Clicking “Register” triggers a POST request to `/api/user`; upon success they land on the Login page automatically. 
+   - When users visit the page for the first time, they need to register first. Specifically, the user navigates to the Sign Up page, enters their first name, last name, address, email and password, and clicks “Register.”
+   - Clicking “Register” triggers a POST request to `/api/user`; upon success they land on the Login page automatically.
    - Then they can enter the same email and password, which triggers a POST request to `/api/user/login`; on success it logs them in and redirects to the “Products” listing by default.
-   - At the top, the navbar brand “AnimeGoods” always links back to `/products`, while the “Products” menu reveals all categories, letting users jump directly to category‑specific lists. 
-   - The search bar accepts free‑text queries and updates the URL’s `?search=` parameter in real time automatically; pressing Enter runs the search if not already on the products page. 
-   - The right side of the navbar houses the user icon (opening login/register or account menus) and the cart icon (showing the count of items and a preview panel). 
+   - At the top, the navbar brand “AnimeGoods” always links back to `/products`, while the “Products” menu reveals all categories, letting users jump directly to category‑specific lists.
+   - The search bar accepts free‑text queries and updates the URL’s `?search=` parameter in real time automatically; pressing Enter runs the search if not already on the products page.
+   - The right side of the navbar houses the user icon (opening login/register or account menus) and the cart icon (showing the count of items and a preview panel).
 2. Browsing and Product Interaction
    - From the homepage or `/products`, users see a responsive grid of product cards.
    - Each product card includes a quantity input with plus/minus controls, allowing users to select a quantity and click “Add to Cart” directly from the card without visiting the detail page.
@@ -150,8 +150,8 @@ Figure 8\. Frontend User
    - On your Profile page users can update their information by submitting a PUT request to `/api/user/:id`, cancel their account by confirming a DELETE request to the same endpoint, or log out, which clears their session and returns them to the homepage.
 6. **Admin Console**
    *(only visible to users with admin rights)*
-   - For users with admin rights, additional options appear in the user menu. 
-   - “Manage Users” opens the User List View and fetches all customers using GET `/api/user/allCustomers`. 
+   - For users with admin rights, additional options appear in the user menu.
+   - “Manage Users” opens the User List View and fetches all customers using GET `/api/user/allCustomers`.
    - “Manage Products” leads to the Product List View, which loads via GET `/api/product` and includes features like search, status filtering, pagination, and sorting.
 7. Error Handling
    - If the user manually visits a protected admin page or their own user page without proper rights, the `HttpError` component gracefully displays 401/403/404/500 screens with clear messages and action buttons.
@@ -164,83 +164,72 @@ Figure 8\. Frontend User
 
 ### Environment Setup & Configuration
 
-1. **Prerequisites:**  
+1. **Prerequisites:**
 
    - Node.js installed on your machine.
    - PostgreSQL database server up and running.
-   - AWS account with an S3 bucket configured (for product image hosting)  
+   - AWS account with an S3 bucket configured (for product image hosting)
 
-2. **Repository Setup:**  
+2. **Repository Setup:**
 
-   - Clone the repository:  
+   - Clone the repository:
 
-     ```bash
-     git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
-     cd anime-ecommerce
-     ```
+      backend
+      ```bash
+      git clone https://github.com/LittlePetunia/ece1724-anime-goods-e-commerce-backend.git
+      cd ece1724-anime-goods-e-commerce-backend
+      ```
+
+      frontend
+      ```bash
+      git clone https://github.com/IronDumpling/anime-goods-e-commerce-frontend.git
+      cd anime-goods-e-commerce-frontend
+      ```
+
 
    - Install dependencies for both frontend and backend:
 
-     ```bash
-     npm install
-     ```
+      ```bash
+      npm install
+      ```
 
 3. **Environment Configuration**
 
-   Create a `.env` file in the project root with the following content:
 
-   ```env
-   # PostgreSQL database URL
-   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-   
-   # AWS S3 configuration
-   AWS_ACCESS_KEY_ID="your-access-key"
-   AWS_SECRET_ACCESS_KEY="your-secret-key"
-   S3_BUCKET_NAME="your-bucket-name"
-   ```
+    Backend: create a `.env` file in the project root with the following content:
 
-   For frontend (if in a separate directory), create `.env` as:
-
-   ```env
-   VITE_API_BASE_URL="http://localhost:3000/api"
-   ```
+    ```env
+    # PostgreSQL database URL
+    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+    ```
 
 4. **Database Initialization & Prisma Client Generation**
 
-   ```bash
-   npx prisma migrate dev --name init
-   npx prisma generate
-   # Optional: seed test data
-   node prisma/seed.js
-   ```
+    backend
+    ```bash
+    npx prisma migrate dev --name init
+    npx prisma generate
+    ```
 
 5. **Running the Application Locally**
 
-   - **Frontend:**  
+   - **Frontend:**
 
-     - Run the development server using:  
+     - Run the development server using:
 
        ```bash
        npm run dev
        ```
 
-     - The site will be available at [http://localhost:3000](http://localhost:3000).
+     - The site will be available at [http://localhost:5173/](http://localhost:5173/).
 
-   - **Backend:**  
+   - **Backend:**
 
-     - Start the Express server with:  
+     - Start the Express server with:
 
        ```bash
        npm run start
        ```
-
-6. **Testing**
-
-   Run unit and integration tests using Jest and Supertest:
-
-   ```bash
-   npm run test
-   ```
 
 
 ---
@@ -258,7 +247,7 @@ Table 1\. Responsibilities for each team member
 |                              | UI/UX Design                                             |          | ✓            |           |             |
 | Backend                      | Backend Utility Layer(Logging, Files, Error Handling, …) | ✓        |              | ✓         |             |
 |                              | PostgreSQL Database                                      | ✓        |              | ✓         |             |
-|                              | Authentication & Access Control                          | ✓        |              | ✓         |             |
+|                              | Authentication & Access Control                          | ✓        |              | ✓         | ✓           |
 |                              | Third Party Integration(Cloud Storage, …)                | ✓        |              | ✓         |             |
 |                              | API Implementation                                       | ✓        |              | ✓         |             |
 | Testing & Product Management | Unit Tests                                               | ✓        | ✓            | ✓         | ✓           |
