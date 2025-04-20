@@ -27,7 +27,11 @@
 
 ### Problem Background
 
-With the rapid growth of the anime community, a significant market gap has emerged for anime-specific merchandise. General e-commerce platforms like Amazon often fail to provide a tailored, streamlined experience for anime enthusiasts. Our project was inspired by this need for a dedicated platform that delivers both specialized product curation and an engaging, user-friendly experience.
+With the ongoing global rise of animation culture and the steadily increasing compound annual growth rate of the derivative merchandise market, traditional e-commerce platforms have revealed notable limitations in addressing the demands of core ACG (Anime, Comic, and Game) users.  A vast number of products are classified and mixed, and the search efficiency is low, which makes it impossible for users to accurately locate the genuine figurines or limited edition peripheral products they need even after frequently turning pages. Meanwhile, local Japanese e-commerce platforms have serious language and payment barriers. Many do not support international credit cards or mainstream third-party payment systems. The cross-border purchasing process is often complex, accompanied by high intermediary fees and import tariffs, further increasing the financial burden on consumers. Moreover, in the second-hand trading space, it is difficult to distinguish the authenticity  of product. The frequent occurrence of counterfeit and substandard goods forces consumers into a dilemma between safeguarding their rights and bearing the cost of diminished trust.
+
+Furthermore, conventional e-commerce platforms lack dedicated communities and interaction mechanisms, making it difficult to foster user engagement or cultivate fan loyalty. As a result, they fail to generate effective brand word-of-mouth promotion or secondary dissemination within fan communities.
+
+In response to these pain points—namely *inefficient search, limited purchasing access, authenticity concerns, and insufficient community interaction*—we propose a dedicated e-commerce platform specializing in anime-related merchandise. Through refined product classification and special topic planning, users can directly access the complete product line of their favorite series or characters with just one click, completely saying goodbye to the trouble of getting lost in a vast list.
 
 ### Business Significance
 
