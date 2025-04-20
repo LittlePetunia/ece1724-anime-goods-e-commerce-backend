@@ -106,9 +106,45 @@ Finally, access control and error handling are enforced throughout the applicati
 
 ## 6. User Guide
 
-When users visit the page for the first time, they need to register first. Specifically, the user navigates to the Sign Up page, enters their first name, last name, address, email and password, and clicks “Register.” Upon success they land on the Login page automatically. Then they can enter the same email and password logs them in and redirects to the “Products” listing by default. At the top, the navbar brand “AnimeGoods” always links back to `/products`, while the “Products” menu reveals all categories, letting users jump directly to category‑specific lists. The search bar accepts free‑text queries and updates the URL’s `?search=` parameter in real time automatically; pressing Enter runs the search if not already on the products page. The right side of the navbar houses the user icon (opening login/register or account menus) and the cart icon (showing the count of items and a preview panel). 
-
-On the products page, cards are laid out in a responsive grid. Clicking “View Details” opens `/products/:id`, displaying a larger image, full description, current stock badge and the price formatted to two decimals. Users adjust the quantity with plus/minus buttons or by typing a number into a sanitized input field. Clicking “Add to Cart” updates the cart count in real time. To review selected items, the user clicks the cart icon and then “Go to Cart,” arriving at `/cart`. On the shopping cart page, each item is represented by a `CartListEntry` card showing a checkbox, image (or fallback icon), title, unit price, description snippet, and controls to change quantity or remove the item entirely. Users can select individual items or use a “Select All” control (in the header) to bulk‑remove or proceed to checkout. Pressing “Place Order” on the checkout page validates stock once more, submits the purchase to the backend, and upon success displays an order confirmation page. And during development, a console log simulating an email notification. Users can view details in "My Orders" section which linked from the user menu. It lists all past and current orders with status badges; clicking one shows detailed line items, quantities, unit prices and timestamps. If the user manually visits a protected admin page or their own user page without proper rights, the `HttpError` component gracefully displays 401/403/404/500 screens with clear messages and action buttons.
+1. Registration and Login
+   - When users visit the page for the first time, they need to register first. Specifically, the user navigates to the Sign Up page, enters their first name, last name, address, email and password, and clicks “Register.” 
+   - Clicking “Register” triggers a POST request to `/api/user`; upon success they land on the Login page automatically. 
+   - Then they can enter the same email and password, which triggers a POST request to `/api/user/login`; on success it logs them in and redirects to the “Products” listing by default.
+   - At the top, the navbar brand “AnimeGoods” always links back to `/products`, while the “Products” menu reveals all categories, letting users jump directly to category‑specific lists. 
+   - The search bar accepts free‑text queries and updates the URL’s `?search=` parameter in real time automatically; pressing Enter runs the search if not already on the products page. 
+   - The right side of the navbar houses the user icon (opening login/register or account menus) and the cart icon (showing the count of items and a preview panel). 
+2. Browsing and Product Interaction
+   - From the homepage or `/products`, users see a responsive grid of product cards.
+   - Each product card includes a quantity input with plus/minus controls, allowing users to select a quantity and click “Add to Cart” directly from the card without visiting the detail page.
+   - Clicking a card’s image/title or “View Details” opens the Product Detail View at `/products/:id`.
+   - `/products/:id` displays a larger image, full description, current stock badge and the price formatted to two decimals.
+   - Users adjust the quantity with plus/minus buttons or by typing a number into a sanitized input field.
+   - Clicking “Add to Cart” updates the cart count in real time on the cart icon.
+3. Managing the Shopping Cart
+   - Clicking the cart icon opens the Cart Preview, showing items, quantity, and total price.
+   - To review selected items, the user clicks the cart icon and then “Go to Cart,” arriving at `/cart`.
+   - On the shopping cart page, each item is represented by a `CartListEntry` card showing a checkbox, image or fallback icon, title, unit price, description snippet, and controls to change quantity or remove the item entirely.
+   - Users can select individual items or use a “Select All” control in the header to bulk‑remove or proceed to checkout.
+   - Pressing “Place Order” on the checkout page validates stock once more, submits the purchase to the backend, and upon success displays an order confirmation page. And during development, a console log simulating an email notification. If not logged in when they click “Place Order,” the user sees a login/register prompt; after authentication they return to the cart to complete the order.
+   - A “Clear Shopping Cart” button removes all items at once.
+   - Click the trash icon next to an item to remove just that product.
+   - To adjust quantity, plus/minus controls or typing a number (cannot exceed available stock).
+   - From the cart, clicking a product’s image or title jumps back to its detail page at `/products/:id` for more info.
+4. Order History
+   - The user menu provides access to My Orders, loading data via GET `/api/order/user/:id`.
+   - It lists all past and current orders with status badges; clicking one shows detailed line items, quantities, unit prices and timestamps.
+5. Account & Profile
+   - Clicking the user icon in the navbar reveals options based on authentication status. If unauthenticated, users can choose Login or Register. Register opens the form that sends a POST request to `/api/user`, after which you are automatically logged in. Login submits credentials via POST `/api/user/login` and, on success, takes you to your Profile View.
+   - On your Profile page users can update their information by submitting a PUT request to `/api/user/:id`, cancel their account by confirming a DELETE request to the same endpoint, or log out, which clears their session and returns them to the homepage.
+6. **Admin Console**
+    *(only visible to users with admin rights)*
+   - For users with admin rights, additional options appear in the user menu. 
+   - “Manage Users” opens the User List View and fetches all customers using GET `/api/user/allCustomers`. 
+   - “Manage Products” leads to the Product List View, which loads via GET `/api/product` and includes features like search, status filtering, pagination, and sorting.
+7. Error Handling
+   - If the user manually visits a protected admin page or their own user page without proper rights, the `HttpError` component gracefully displays 401/403/404/500 screens with clear messages and action buttons.
+   - ProtectedRoute ensures that only authorized users can access admin views or specific account pages.
+   
 
 
 ---
