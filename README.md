@@ -1,4 +1,6 @@
-# Final Report
+# ECE1724 AnimeGoods E-Commerce Website Final Report
+
+Note: This repository is the backend part of the final project. The frontend repository can be found here: [https://github.com/IronDumpling/anime-goods-e-commerce-frontend](https://github.com/IronDumpling/anime-goods-e-commerce-frontend)
 
 ---
 
